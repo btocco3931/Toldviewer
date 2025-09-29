@@ -1,5 +1,5 @@
 // sw.js - Service Worker for TOLD Viewer
-const CACHE_NAME = "toldviewer-v1"; // bump with ./update.sh
+const CACHE_NAME = "toldviewer-v2"; // bump with ./update.sh
 const ASSETS = [
   "./",
   "./index.html"
