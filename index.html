@@ -234,29 +234,29 @@ function switchScreen(show) {
 
 function renderCard(card) {
   // Left column
-  document.getElementById("date").textContent = card.Date || "--";
-  document.getElementById("ete").textContent = card.ETE || "--";
-  document.getElementById("sid").textContent = card.SID || "--";
-  document.getElementById("star").textContent = card.STAR || "--";
-  document.getElementById("blockfuel").textContent = card.BlockFuel || "--";
-  document.getElementById("mintofuel").textContent = card.MinTOFuel || "--";
-  document.getElementById("pldfuel").textContent = card.PlannedLandingFuel || "--";
-  document.getElementById("minldgfuel").textContent = card.MinLandingFuel || "--";
-  document.getElementById("delayfuel").textContent = card.AvailableDelayFuel || "--";
+  document.getElementById("date").value = card.Date || "--";
+  document.getElementById("ete").value = card.ETE || "--";
+  document.getElementById("sid").value = card.SID || "--";
+  document.getElementById("star").value = card.STAR || "--";
+  document.getElementById("blockfuel").value = card.BlockFuel || "--";
+  document.getElementById("mintofuel").value = card.MinTOFuel || "--";
+  document.getElementById("pldfuel").value = card.PlannedLandingFuel || "--";
+  document.getElementById("minldgfuel").value = card.MinLandingFuel || "--";
+  document.getElementById("delayfuel").value = card.AvailableDelayFuel || "--";
 
   // Center column
-  document.getElementById("ship").textContent = card.ShipNumber ? "Ship " + card.ShipNumber : "";
-  document.getElementById("callsign").textContent = card.FlightNumber || "UNKNOWN";
-  document.getElementById("depArr").textContent = card.DepartureAirport && card.ArrivalAirport ?
+  document.getElementById("ship").value = card.ShipNumber ? "Ship " + card.ShipNumber : "";
+  document.getElementById("callsign").value = card.FlightNumber || "UNKNOWN";
+  document.getElementById("depArr").value = card.DepartureAirport && card.ArrivalAirport ?
       card.DepartureAirport + " – " + card.ArrivalAirport : "";
 
   // Right column
-  document.getElementById("deptime").textContent = card.DepartureTime || "--";
-  document.getElementById("etal").textContent = card.ETA_Local || "--";
-  document.getElementById("etaz").textContent = card.ETA_Zulu || "--";
+  document.getElementById("deptime").value = card.DepartureTime || "--";
+  document.getElementById("etal").value = card.ETA_Local || "--";
+  document.getElementById("etaz").value = card.ETA_Zulu || "--";
 
   // Footer
-  document.getElementById("route").textContent = card.Route || "";
+  document.getElementById("route").value = card.Route || "";
 
   switchScreen("resultsScreen");
 }
@@ -312,5 +312,31 @@ Flight Level: <input type="text" id="flightlevel">
 }
 </script>
 
-</body>
+<script>n
+function loadCard() {n
+  const input = document.getElementById("jsonInput");n
+  if (!input) { alert("No JSON input found."); return; }n
+  let data;n
+  try {n
+    data = JSON.parse(input.value);n
+  } catch (e) {n
+    alert("Invalid JSON");n
+    return;n
+  }n
+  if (data.cityPair) document.getElementById("citypair").textContent = data.cityPair;n
+  if (data.flightNum) document.getElementById("flightnum").textContent = data.flightNum;n
+  if (data.eta) document.getElementById("eta").value = data.eta;n
+  if (data.updatedEta) document.getElementById("updatedEta").value = data.updatedEta;n
+  if (data.ete) document.getElementById("ete").value = data.ete;n
+  if (data.flightLevel) document.getElementById("flightlevel").value = data.flightLevel;n
+  if (data.sid) document.getElementById("sid").value = data.sid;n
+  if (data.star) document.getElementById("star").value = data.star;n
+  if (data.fuel) document.getElementById("fuel").value = data.fuel;n
+  if (data.runway) document.getElementById("runway").value = data.runway;n
+  if (data.gate) document.getElementById("gate").value = data.gate;n
+  if (data.sob) document.getElementById("sob").value = data.sob;n
+  if (data.wdr) document.getElementById("wdr").value = data.wdr;n
+  console.log("Card loaded:", data);n
+}n
+</script></body>
 </html>
