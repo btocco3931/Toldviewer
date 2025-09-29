@@ -340,3 +340,33 @@ function loadCard() {n
 }n
 </script></body>
 </html>
+<script>
+function loadCard() {
+  const input = document.getElementById("jsonInput");
+  if (!input) { alert("No JSON input found."); return; }
+
+  let data;
+  try {
+    data = JSON.parse(input.value);
+  } catch (e) {
+    alert("Invalid JSON");
+    return;
+  }
+
+  if (data.cityPair) document.getElementById("citypair").textContent = data.cityPair;
+  if (data.flightNum) document.getElementById("flightnum").textContent = data.flightNum;
+  if (data.eta) document.getElementById("eta").value = data.eta;
+  if (data.updatedEta) document.getElementById("updatedEta").value = data.updatedEta;
+  if (data.ete) document.getElementById("ete").value = data.ete;
+  if (data.flightLevel) document.getElementById("flightlevel").value = data.flightLevel;
+  if (data.sid) document.getElementById("sid").value = data.sid;
+  if (data.star) document.getElementById("star").value = data.star;
+  if (data.fuel) document.getElementById("fuel").value = data.fuel;
+  if (data.runway) document.getElementById("runway").value = data.runway;
+  if (data.gate) document.getElementById("gate").value = data.gate;
+  if (data.sob) document.getElementById("sob").value = data.sob;
+  if (data.wdr) document.getElementById("wdr").value = data.wdr;
+
+  console.log("Card loaded:", data);
+}
+</script>
