@@ -19,10 +19,26 @@
   </div>
   <script>
     async function loadData() {
-cat > data.json <<'EOF'
-{
-  "callSign": "DAL136",
-  "fuel": "12,500 lbs",
-  "route": "ATL DCT GNV",
-  "soulsOnBoard": 146
-}
+      try {
+        // hardcode repo name so GH Pages finds it
+        const url = "Toldviewer/data.json";
+        console.log("Fetching:", url);
+        const res = await fetch(url, {cache:"no-store"});
+        const text = await res.text();
+        console.log("Raw response:", text.slice(0,200));
+
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = JSON.parse(text);
+
+        document.getElementById("loadScreen").style.display="none";
+        document.getElementById("resultScreen").style.display="flex";
+        document.getElementById("output").textContent = JSON.stringify(data,null,2);
+      } catch (err) {
+        alert("Error: " + err.message);
+        console.error(err);
+      }
+    }
+    loadData();
+  </script>
+</body>
+</html>
