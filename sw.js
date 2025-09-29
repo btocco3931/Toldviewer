@@ -1,5 +1,5 @@
 // sw.js - Service Worker for offline cache
-const CACHE_NAME = "toldviewer-v3";
+const CACHE_NAME = "toldviewer-v4";
 const ASSETS = [
   "./",
   "./index.html"
