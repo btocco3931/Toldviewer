@@ -105,6 +105,19 @@
     margin-top: 4px;
     color: #ccc;
   }
+  .gate-input {
+    margin-top: 6px;
+    font-size: 0.9rem;
+  }
+  .gate-input input {
+    background: #111;
+    border: 1px solid #666;
+    color: #fff;
+    font-size: 0.9rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: 80px;
+  }
 
   .right-col {
     font-size: 0.9rem;
@@ -116,12 +129,40 @@
   .right-col div {
     margin-bottom: 8px;
   }
+  .editable-input {
+    background: #111;
+    border: 1px solid #666;
+    color: #fff;
+    font-size: 0.9rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    width: 90px;
+    margin-left: 6px;
+  }
 
   .footer {
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 0.9rem;
     color: #ccc;
     margin-bottom: 10px;
+    padding: 0 10px;
+  }
+  .sob-box {
+    border: 2px solid #fff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: bold;
+    background: rgba(255,255,255,0.05);
+  }
+  .sob-box input {
+    background: transparent;
+    border: none;
+    color: #fff;
+    width: 3ch;
+    font-size: 1rem;
+    text-align: center;
   }
 </style>
 </head>
@@ -162,6 +203,7 @@
       <div class="ship" id="ship"></div>
       <div class="flight-box" id="callsign"></div>
       <div class="route-line" id="depArr"></div>
+      <div class="gate-input">Gate: <input id="gate" type="text" placeholder="---"></div>
     </div>
 
     <!-- Right column -->
@@ -169,11 +211,13 @@
       <div>Dep: <span id="deptime">--</span></div>
       <div style="margin-top:12px;">ETA L: <span id="etal">--</span></div>
       <div>ETA Z: <span id="etaz">--</span></div>
+      <div>Upd ETA: <input id="updatedeta" class="editable-input" type="text" placeholder="---"></div>
     </div>
   </div>
 
   <div class="footer">
     <div id="route"></div>
+    <div class="sob-box">SOB: <input id="sob" type="number" maxlength="3" placeholder="---"></div>
   </div>
 </div>
 
@@ -211,6 +255,21 @@ function renderCard(card) {
 
   switchScreen("resultsScreen");
 }
+
+// --- Autosave helpers ---
+function autosave(id) {
+  const el = document.getElementById(id);
+  // Load saved value
+  if (localStorage.getItem(id)) {
+    el.value = localStorage.getItem(id);
+  }
+  // Save on change
+  el.addEventListener("input", () => {
+    localStorage.setItem(id, el.value);
+  });
+}
+
+["sob", "gate", "updatedeta"].forEach(autosave);
 
 function loadCard() {
   try {
