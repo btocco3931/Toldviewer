@@ -183,18 +183,20 @@
     <div class="left-col">
       <div class="left-group">
         <div id="date"></div>
-        <div>ETE: <span id="ete">--</span></div>
+        <div>ETE: <input type="text" id="ete">
+Flight Level: <input type="text" id="flightlevel">
       </div>
       <div class="left-group">
-        <div>SID: <span id="sid">--</span></div>
-        <div>STAR: <span id="star">--</span></div>
+        <div>SID: <input type="text" id="sid">
+
+        <div>STAR: <input type="text" id="star">
       </div>
       <div class="fuel-group">
-        <div>Block Fuel: <span id="blockfuel">--</span></div>
-        <div class="fuel-box">Min TO Fuel: <span id="mintofuel">--</span></div>
-        <div>Planned Ldg Fuel: <span id="pldfuel">--</span></div>
-        <div>Min Ldg Fuel: <span id="minldgfuel">--</span></div>
-        <div>Avail Delay Fuel: <span id="delayfuel">--</span></div>
+        <div>Block Fuel: <input type="text" id="fuel">
+        <div class="fuel-box">Min TO Fuel: <input type="text" id="fuel">
+        <div>Planned Ldg Fuel: <input type="text" id="fuel">
+        <div>Min Ldg Fuel: <input type="text" id="fuel">
+        <div>Avail Delay Fuel: <input type="text" id="fuel">
       </div>
     </div>
 
@@ -203,21 +205,24 @@
       <div class="ship" id="ship"></div>
       <div class="flight-box" id="callsign"></div>
       <div class="route-line" id="depArr"></div>
-      <div class="gate-input">Gate: <input id="gate" type="text" placeholder="---"></div>
+      <div class="gate-input">Gate: <input type="text" id="gate">
     </div>
 
     <!-- Right column -->
     <div class="right-col">
       <div>Dep: <span id="deptime">--</span></div>
       <div style="margin-top:12px;">ETA L: <span id="etal">--</span></div>
-      <div>ETA Z: <span id="etaz">--</span></div>
+      <div>ETA Z: <input type="time" id="eta">
+Updated ETA: <input type="time" id="updatedEta">
+
+Arrival Difference: <span id="etaDiff">___</span>
       <div>Upd ETA: <input id="updatedeta" class="editable-input" type="text" placeholder="---"></div>
     </div>
   </div>
 
   <div class="footer">
     <div id="route"></div>
-    <div class="sob-box">SOB: <input id="sob" type="number" maxlength="3" placeholder="---"></div>
+    <div class="sob-box">SOB: <input type="number" inputmode="numeric" class="boxed" id="sob">
   </div>
 </div>
 
@@ -288,17 +293,19 @@ function demoCard() {
     DepartureAirport: "GNV",
     ArrivalAirport: "ATL",
     Date: "09/16/25",
-    ETE: ":49",
+    ETE: <input type="text" id="ete">
+Flight Level: <input type="text" id="flightlevel">
     DepartureTime: "2001Z / 1601L",
     ETA_Local: "1722L",
     ETA_Zulu: "2122Z",
-    SID: "CRG4",
-    STAR: "PEACH2",
-    BlockFuel: "12.5",
-    MinTOFuel: "11.2",
-    PlannedLandingFuel: "6.8",
-    MinLandingFuel: "6.0",
-    AvailableDelayFuel: "0.8",
+    SID: <input type="text" id="sid">
+
+    STAR: <input type="text" id="star">
+    BlockFuel: <input type="text" id="fuel">
+    MinTOFuel: <input type="text" id="fuel">
+    PlannedLandingFuel: <input type="text" id="fuel">
+    MinLandingFuel: <input type="text" id="fuel">
+    AvailableDelayFuel: <input type="text" id="fuel">
     Route: "GNV..CRG..J89..ATL"
   };
   renderCard(demo);
