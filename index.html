@@ -5,169 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>TOLD Viewer</title>
   <style>
-    :root { --bg:#0f1115; --fg:#e7e9ee; --muted:#a9b0bd; --panel:#171a21; --ok:#21c667; --err:#ff5d5d; }
-    * { box-sizing:border-box; }
-    html,body { height:100%; }
-    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:var(--fg); background:var(--bg); }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; }
     .screen { position:absolute; inset:0; display:none; align-items:center; justify-content:center; }
     #loadScreen { display:flex; }
-    .card { background:var(--panel); border:1px solid #222530; border-radius:14px; padding:22px; width:min(920px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.35); }
-    h1,h2{ margin:0 0 12px }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
-    pre { margin:12px 0 0; padding:12px; background:#0b0d12; border-radius:10px; max-height:60vh; overflow:auto; }
-    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .pill { padding:6px 10px; border-radius:999px; background:#0b0d12; color:var(--muted); border:1px solid #232734; font-size:12px; }
-    .ok { color:var(--ok); border-color:#254433; background:#102217; }
-    .err { color:var(--err); border-color:#462a2a; background:#1e0f0f; }
-    .muted { color:var(--muted); }
-    button { background:#1f2430; border:1px solid #2b3242; color:var(--fg); padding:8px 12px; border-radius:10px; cursor:pointer; }
-    button:hover { filter:brightness(1.12); }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:10px; }
-    .kv { background:#0b0d12; border:1px solid #232734; border-radius:10px; padding:12px; }
-    .kv .k { font-size:12px; color:var(--muted); }
-    .kv .v { font-size:18px; margin-top:6px; }
+    pre { text-align:left; background:#222; padding:1em; border-radius:8px; max-height:80%; overflow-y:auto; width:90%; }
   </style>
 </head>
 <body>
-  <div id="loadScreen" cl
-bash -euxo pipefail <<'SH'
-# 1) Backup existing file(s)
-test -f index.html && cp -f index.html "index.html.bak.$(date +%Y%m%d%H%M%S)" || true
-
-# 2) Write a fresh, robust index.html
-cat > index.html <<'HTML'
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>TOLD Viewer</title>
-  <style>
-    :root { --bg:#0f1115; --fg:#e7e9ee; --muted:#a9b0bd; --panel:#171a21; --ok:#21c667; --err:#ff5d5d; }
-    * { box-sizing:border-box; }
-    html,body { height:100%; }
-    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:var(--fg); background:var(--bg); }
-    .screen { position:absolute; inset:0; display:none; align-items:center; justify-content:center; }
-    #loadScreen { display:flex; }
-    .card { background:var(--panel); border:1px solid #222530; border-radius:14px; padding:22px; width:min(920px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.35); }
-    h1,h2{ margin:0 0 12px }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
-    pre { margin:12px 0 0; padding:12px; background:#0b0d12; border-radius:10px; max-height:60vh; overflow:auto; }
-    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
-    .pill { padding:6px 10px; border-radius:999px; background:#0b0d12; color:var(--muted); border:1px solid #232734; font-size:12px; }
-    .ok { color:var(--ok); border-color:#254433; background:#102217; }
-    .err { color:var(--err); border-color:#462a2a; background:#1e0f0f; }
-    .muted { color:var(--muted); }
-    button { background:#1f2430; border:1px solid #2b3242; color:var(--fg); padding:8px 12px; border-radius:10px; cursor:pointer; }
-    button:hover { filter:brightness(1.12); }
-    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:10px; }
-    .kv { background:#0b0d12; border:1px solid #232734; border-radius:10px; padding:12px; }
-    .kv .k { font-size:12px; color:var(--muted); }
-    .kv .v { font-size:18px; margin-top:6px; }
-  </style>
-</head>
-<body>
-  <div id="loadScreen" class="screen">
-    <div class="card">
-      <h1>Loading TOLD Card…</h1>
-      <div class="row">
-        <span class="pill">Viewer starting</span>
-        <span id="pFetch" class="pill">fetching…</span>
-        <span id="pParse" class="pill">parsing…</span>
-      </div>
-      <pre id="debug" class="mono muted" style="display:none; margin-top:14px;"></pre>
-      <div style="margin-top:10px"><button id="toggleDebug" type="button">Show debug</button></div>
-    </div>
-  </div>
-
+  <div id="loadScreen" class="screen"><h1>Loading TOLD Card…</h1></div>
   <div id="resultScreen" class="screen">
-    <div class="card">
-      <h2>TOLD Results</h2>
-      <div class="grid" id="summary"></div>
-      <details style="margin-top:12px">
-        <summary class="muted">Raw JSON</summary>
-        <pre id="output" class="mono"></pre>
-      </details>
-    </div>
+    <h2>Results</h2>
+    <pre id="output"></pre>
   </div>
-
   <script>
-    // Debug helpers
-    const $ = (id)=>document.getElementById(id);
-    const log = (...a)=>{ console.log(...a); const d=$("debug"); d.style.display="block"; d.textContent += a.map(x => (typeof x==="string"?x:JSON.stringify(x,null,2))).join(" ") + "\\n"; };
-
-    $("toggleDebug").addEventListener("click", ()=> {
-      const d = $("debug"); d.style.display = d.style.display==="none" ? "block" : "none";
-    });
-
-    function uniq(arr){ return [...new Set(arr.filter(Boolean))]; }
-
-    function computeCandidatePaths() {
-      // Try robust candidates for GitHub Pages (project pages) and plain hosting
-      const path = location.pathname;
-      const repo = (path.split("/")[1] || "").trim(); // e.g., "/Toldviewer/index.html" -> "Toldviewer"
-      const base = path.replace(/\\/index\\.html?$/, "").replace(/\\/$/, ""); // strip trailing /index.html or slash
-
-      const candidates = [
-        base + "/data.json",
-        "./data.json",
-        "/data.json",
-        repo ? "/" + repo + "/data.json" : null
-      ];
-      // add cache-buster to defeat GH Pages caching
-      const q = "?v=" + Date.now();
-      return uniq(candidates).map(u => u + q);
-    }
-
-    async function fetchAndParse(url) {
-      $("pFetch").textContent = "GET " + url;
-      const res = await fetch(url, { cache: "no-store" });
-      const text = await res.text();
-      if (!res.ok) {
-        const snippet = text.slice(0, 300).replace(/\\s+/g, " ");
-        throw new Error("HTTP " + res.status + " from " + url + " — " + snippet);
-      }
-      $("pParse").textContent = "parsing JSON…";
-      try {
-        return JSON.parse(text);
-      } catch (e) {
-        const snippet = text.slice(0, 300).replace(/\\s+/g, " ");
-        throw new Error("Invalid JSON from " + url + " — starts with: " + snippet);
-      }
-    }
-
-    function renderSummary(data){
-      const kv = (k,v)=>\\\`<div class="kv"><div class="k">\\\${k}</div><div class="v">\\\${v ?? "—"}</div></div>\\\`;
-      $("summary").innerHTML = [
-        kv("Call Sign", data.callSign || data.callsign || data.flight || "—"),
-        kv("Fuel", data.fuel || data.blockFuel || data.block_fuel || "—"),
-        kv("Route", data.route || data.rte || "—"),
-        kv("Souls on Board (SOB)", data.soulsOnBoard || data.SOB || data.sob || "—")
-      ].join("");
-      $("output").textContent = JSON.stringify(data, null, 2);
-    }
-
-    (async function main(){
-      try {
-        const urls = computeCandidatePaths();
-        log("Candidate URLs:", urls);
-        let data=null, lastErr=null;
-        for (const u of urls) {
-          try { data = await fetchAndParse(u); $("pFetch").classList.add("ok"); $("pParse").classList.add("ok"); break; }
-          catch (e) { lastErr = e; log(String(e)); }
-        }
-        if (!data) throw lastErr || new Error("Unable to fetch data.json from any candidate path.");
-
-        // Switch screens
-        $("loadScreen").style.display = "none";
-        $("resultScreen").style.display = "block";
-        renderSummary(data);
-      } catch (err) {
-        $("pFetch").classList.add("err"); $("pParse").classList.add("err");
-        log("FATAL:", String(err));
-        alert(String(err));
-      }
-    })();
-  </script>
-</body>
-</html>
+    async function loadData() {
+cat > data.json <<'EOF'
+{
+  "callSign": "DAL136",
+  "fuel": "12,500 lbs",
+  "route": "ATL DCT GNV",
+  "soulsOnBoard": 146
+}
