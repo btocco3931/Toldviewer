@@ -1,380 +1,173 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TOLD Viewer</title>
-<style>
-  body {
-    margin: 0;
-    font-family: system-ui, sans-serif;
-    background: #111;
-    color: #fff;
-    overflow: hidden;
-  }
-  .screen {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.5s ease, visibility 0.5s ease;
-  }
-  .active {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  /* Load screen */
-  #loadScreen {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-  }
-  textarea, button {
-    margin: 10px;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 1rem;
-  }
-  textarea { width: 80%; height: 120px; }
-  button { background:#28a745; color:white; border:none; cursor:pointer; }
-
-  /* Results screen */
-  #resultsScreen {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: 100%;
-    padding: 10px;
-  }
-  .top-row {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: start;
-    margin-bottom: 10px;
-  }
-  .left-col {
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: #bbb;
-    padding-left: 8px;
-  }
-  .left-group {
-    margin-bottom: 14px;
-  }
-  .left-group div {
-    margin-bottom: 6px;
-  }
-  .fuel-group div {
-    margin-bottom: 10px;
-  }
-  .fuel-box {
-    border: 2px solid #fff;
-    padding: 2px 6px;
-    border-radius: 6px;
-    display: inline-block;
-    font-weight: bold;
-    color: #fff;
-    background: rgba(255,255,255,0.05);
-  }
-
-  .center-col {
-    text-align: center;
-    padding: 0 10px;
-  }
-  .ship {
-    font-size: 0.9rem;
-    color: #bbb;
-    margin-bottom: 4px;
-  }
-  .flight-box {
-    font-size: 2rem;
-    font-weight: bold;
-    border: 3px solid #fff;
-    border-radius: 10px;
-    padding: 5px 20px;
-    display: inline-block;
-    margin-bottom: 6px;
-  }
-  .route-line {
-    font-size: 1rem;
-    margin-top: 4px;
-    color: #ccc;
-  }
-  .gate-input {
-    margin-top: 6px;
-    font-size: 0.9rem;
-  }
-  .gate-input input {
-    background: #111;
-    border: 1px solid #666;
-    color: #fff;
-    font-size: 0.9rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    width: 80px;
-  }
-
-  .right-col {
-    font-size: 0.9rem;
-    line-height: 1.8;
-    color: #bbb;
-    text-align: right;
-    padding-right: 8px;
-  }
-  .right-col div {
-    margin-bottom: 8px;
-  }
-  .editable-input {
-    background: #111;
-    border: 1px solid #666;
-    color: #fff;
-    font-size: 0.9rem;
-    padding: 2px 6px;
-    border-radius: 4px;
-    width: 90px;
-    margin-left: 6px;
-  }
-
-  .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.9rem;
-    color: #ccc;
-    margin-bottom: 10px;
-    padding: 0 10px;
-  }
-  .sob-box {
-    border: 2px solid #fff;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-weight: bold;
-    background: rgba(255,255,255,0.05);
-  }
-  .sob-box input {
-    background: transparent;
-    border: none;
-    color: #fff;
-    width: 3ch;
-    font-size: 1rem;
-    text-align: center;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOLD Viewer</title>
+  <style>
+    :root { --bg:#0f1115; --fg:#e7e9ee; --muted:#a9b0bd; --panel:#171a21; --ok:#21c667; --err:#ff5d5d; }
+    * { box-sizing:border-box; }
+    html,body { height:100%; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:var(--fg); background:var(--bg); }
+    .screen { position:absolute; inset:0; display:none; align-items:center; justify-content:center; }
+    #loadScreen { display:flex; }
+    .card { background:var(--panel); border:1px solid #222530; border-radius:14px; padding:22px; width:min(920px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.35); }
+    h1,h2{ margin:0 0 12px }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+    pre { margin:12px 0 0; padding:12px; background:#0b0d12; border-radius:10px; max-height:60vh; overflow:auto; }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .pill { padding:6px 10px; border-radius:999px; background:#0b0d12; color:var(--muted); border:1px solid #232734; font-size:12px; }
+    .ok { color:var(--ok); border-color:#254433; background:#102217; }
+    .err { color:var(--err); border-color:#462a2a; background:#1e0f0f; }
+    .muted { color:var(--muted); }
+    button { background:#1f2430; border:1px solid #2b3242; color:var(--fg); padding:8px 12px; border-radius:10px; cursor:pointer; }
+    button:hover { filter:brightness(1.12); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:10px; }
+    .kv { background:#0b0d12; border:1px solid #232734; border-radius:10px; padding:12px; }
+    .kv .k { font-size:12px; color:var(--muted); }
+    .kv .v { font-size:18px; margin-top:6px; }
+  </style>
 </head>
 <body>
-<div id="loadScreen" class="screen" style="opacity:1;">n  <h2>Load TOLD JSON</h2>n  <textarea id="jsonInput" rows="10" cols="40" placeholder="Paste JSON here"></textarea><br>n  <button onclick="loadCard()">Load Card</button>n</div>nn<div id="resultScreen" class="screen" style="opacity:0;">n  <!-- === TOLD card starts here === -->n  City Pair: <span id="citypair">___</span>nn  Flight Number: <span class="boxed" id="flightnum">___</span>nn  ETA Z: <input type="time" id="eta">n  Updated ETA: <input type="time" id="updatedEta">nn  Arrival Difference: <span id="etaDiff">___</span>nn  ETE: <input type="text" id="ete">n  Flight Level: <input type="text" id="flightlevel">nn  SID: <input type="text" id="sid">nn  STAR: <input type="text" id="star">nn  Fuel: <input type="text" id="fuel">nn  Runway: <input type="text" id="runway">nn  Gate: <input type="text" id="gate">nn  SOB: <input type="number" inputmode="numeric" class="boxed" id="sob">nn  WDR Max Takeoff Weight: <input type="number" inputmode="numeric" class="boxed" id="wdr">n  <!-- === TOLD card ends here === -->n</div>
-<!-- Load Screen -->
-<div id="loadScreen" class="screen active">
-  <h2>Load TOLD Card</h2>
-  <textarea id="jsonInput" placeholder="Paste JSON here..."></textarea>
-  <button onclick="loadCard()">Load Card</button>
-  <button onclick="demoCard()">Demo Card</button>
-</div>
+  <div id="loadScreen" cl
+bash -euxo pipefail <<'SH'
+# 1) Backup existing file(s)
+test -f index.html && cp -f index.html "index.html.bak.$(date +%Y%m%d%H%M%S)" || true
 
-<!-- Results Screen -->
-<div id="resultsScreen" class="screen">
-  <div class="top-row">
-    <!-- Left column -->
-    <div class="left-col">
-      <div class="left-group">
-        <div id="date"></div>
-        <div>ETE: <input type="text" id="ete">
-Flight Level: <input type="text" id="flightlevel">
+# 2) Write a fresh, robust index.html
+cat > index.html <<'HTML'
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TOLD Viewer</title>
+  <style>
+    :root { --bg:#0f1115; --fg:#e7e9ee; --muted:#a9b0bd; --panel:#171a21; --ok:#21c667; --err:#ff5d5d; }
+    * { box-sizing:border-box; }
+    html,body { height:100%; }
+    body { margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif; color:var(--fg); background:var(--bg); }
+    .screen { position:absolute; inset:0; display:none; align-items:center; justify-content:center; }
+    #loadScreen { display:flex; }
+    .card { background:var(--panel); border:1px solid #222530; border-radius:14px; padding:22px; width:min(920px,92vw); box-shadow:0 10px 30px rgba(0,0,0,.35); }
+    h1,h2{ margin:0 0 12px }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
+    pre { margin:12px 0 0; padding:12px; background:#0b0d12; border-radius:10px; max-height:60vh; overflow:auto; }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .pill { padding:6px 10px; border-radius:999px; background:#0b0d12; color:var(--muted); border:1px solid #232734; font-size:12px; }
+    .ok { color:var(--ok); border-color:#254433; background:#102217; }
+    .err { color:var(--err); border-color:#462a2a; background:#1e0f0f; }
+    .muted { color:var(--muted); }
+    button { background:#1f2430; border:1px solid #2b3242; color:var(--fg); padding:8px 12px; border-radius:10px; cursor:pointer; }
+    button:hover { filter:brightness(1.12); }
+    .grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin-top:10px; }
+    .kv { background:#0b0d12; border:1px solid #232734; border-radius:10px; padding:12px; }
+    .kv .k { font-size:12px; color:var(--muted); }
+    .kv .v { font-size:18px; margin-top:6px; }
+  </style>
+</head>
+<body>
+  <div id="loadScreen" class="screen">
+    <div class="card">
+      <h1>Loading TOLD Card…</h1>
+      <div class="row">
+        <span class="pill">Viewer starting</span>
+        <span id="pFetch" class="pill">fetching…</span>
+        <span id="pParse" class="pill">parsing…</span>
       </div>
-      <div class="left-group">
-        <div>SID: <input type="text" id="sid">
-
-        <div>STAR: <input type="text" id="star">
-      </div>
-      <div class="fuel-group">
-        <div>Block Fuel: <input type="text" id="fuel">
-        <div class="fuel-box">Min TO Fuel: <input type="text" id="fuel">
-        <div>Planned Ldg Fuel: <input type="text" id="fuel">
-        <div>Min Ldg Fuel: <input type="text" id="fuel">
-        <div>Avail Delay Fuel: <input type="text" id="fuel">
-      </div>
-    </div>
-
-    <!-- Center column -->
-    <div class="center-col">
-      <div class="ship" id="ship"></div>
-      <div class="flight-box" id="callsign"></div>
-      <div class="route-line" id="depArr"></div>
-      <div class="gate-input">Gate: <input type="text" id="gate">
-    </div>
-
-    <!-- Right column -->
-    <div class="right-col">
-      <div>Dep: <span id="deptime">--</span></div>
-      <div style="margin-top:12px;">ETA L: <span id="etal">--</span></div>
-      <div>ETA Z: <input type="time" id="eta">
-Updated ETA: <input type="time" id="updatedEta">
-
-Arrival Difference: <span id="etaDiff">___</span>
-      <div>Upd ETA: <input id="updatedeta" class="editable-input" type="text" placeholder="---"></div>
+      <pre id="debug" class="mono muted" style="display:none; margin-top:14px;"></pre>
+      <div style="margin-top:10px"><button id="toggleDebug" type="button">Show debug</button></div>
     </div>
   </div>
 
-  <div class="footer">
-    <div id="route"></div>
-    <div class="sob-box">SOB: <input type="number" inputmode="numeric" class="boxed" id="sob">
+  <div id="resultScreen" class="screen">
+    <div class="card">
+      <h2>TOLD Results</h2>
+      <div class="grid" id="summary"></div>
+      <details style="margin-top:12px">
+        <summary class="muted">Raw JSON</summary>
+        <pre id="output" class="mono"></pre>
+      </details>
+    </div>
   </div>
-</div>
 
-<script>
-function switchScreen(show) {
-  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-  document.getElementById(show).classList.add("active");
-}
+  <script>
+    // Debug helpers
+    const $ = (id)=>document.getElementById(id);
+    const log = (...a)=>{ console.log(...a); const d=$("debug"); d.style.display="block"; d.textContent += a.map(x => (typeof x==="string"?x:JSON.stringify(x,null,2))).join(" ") + "\\n"; };
 
-function renderCard(card) {
-  // Left column
-  document.getElementById("date").value = card.Date || "--";
-  document.getElementById("ete").value = card.ETE || "--";
-  document.getElementById("sid").value = card.SID || "--";
-  document.getElementById("star").value = card.STAR || "--";
-  document.getElementById("blockfuel").value = card.BlockFuel || "--";
-  document.getElementById("mintofuel").value = card.MinTOFuel || "--";
-  document.getElementById("pldfuel").value = card.PlannedLandingFuel || "--";
-  document.getElementById("minldgfuel").value = card.MinLandingFuel || "--";
-  document.getElementById("delayfuel").value = card.AvailableDelayFuel || "--";
+    $("toggleDebug").addEventListener("click", ()=> {
+      const d = $("debug"); d.style.display = d.style.display==="none" ? "block" : "none";
+    });
 
-  // Center column
-  document.getElementById("ship").value = card.ShipNumber ? "Ship " + card.ShipNumber : "";
-  document.getElementById("callsign").value = card.FlightNumber || "UNKNOWN";
-  document.getElementById("depArr").value = card.DepartureAirport && card.ArrivalAirport ?
-      card.DepartureAirport + " – " + card.ArrivalAirport : "";
+    function uniq(arr){ return [...new Set(arr.filter(Boolean))]; }
 
-  // Right column
-  document.getElementById("deptime").value = card.DepartureTime || "--";
-  document.getElementById("etal").value = card.ETA_Local || "--";
-  document.getElementById("etaz").value = card.ETA_Zulu || "--";
+    function computeCandidatePaths() {
+      // Try robust candidates for GitHub Pages (project pages) and plain hosting
+      const path = location.pathname;
+      const repo = (path.split("/")[1] || "").trim(); // e.g., "/Toldviewer/index.html" -> "Toldviewer"
+      const base = path.replace(/\\/index\\.html?$/, "").replace(/\\/$/, ""); // strip trailing /index.html or slash
 
-  // Footer
-  document.getElementById("route").value = card.Route || "";
+      const candidates = [
+        base + "/data.json",
+        "./data.json",
+        "/data.json",
+        repo ? "/" + repo + "/data.json" : null
+      ];
+      // add cache-buster to defeat GH Pages caching
+      const q = "?v=" + Date.now();
+      return uniq(candidates).map(u => u + q);
+    }
 
-  switchScreen("resultsScreen");
-}
+    async function fetchAndParse(url) {
+      $("pFetch").textContent = "GET " + url;
+      const res = await fetch(url, { cache: "no-store" });
+      const text = await res.text();
+      if (!res.ok) {
+        const snippet = text.slice(0, 300).replace(/\\s+/g, " ");
+        throw new Error("HTTP " + res.status + " from " + url + " — " + snippet);
+      }
+      $("pParse").textContent = "parsing JSON…";
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        const snippet = text.slice(0, 300).replace(/\\s+/g, " ");
+        throw new Error("Invalid JSON from " + url + " — starts with: " + snippet);
+      }
+    }
 
-// --- Autosave helpers ---
-function autosave(id) {
-  const el = document.getElementById(id);
-  // Load saved value
-  if (localStorage.getItem(id)) {
-    el.value = localStorage.getItem(id);
-  }
-  // Save on change
-  el.addEventListener("input", () => {
-    localStorage.setItem(id, el.value);
-  });
-}
+    function renderSummary(data){
+      const kv = (k,v)=>\\\`<div class="kv"><div class="k">\\\${k}</div><div class="v">\\\${v ?? "—"}</div></div>\\\`;
+      $("summary").innerHTML = [
+        kv("Call Sign", data.callSign || data.callsign || data.flight || "—"),
+        kv("Fuel", data.fuel || data.blockFuel || data.block_fuel || "—"),
+        kv("Route", data.route || data.rte || "—"),
+        kv("Souls on Board (SOB)", data.soulsOnBoard || data.SOB || data.sob || "—")
+      ].join("");
+      $("output").textContent = JSON.stringify(data, null, 2);
+    }
 
-["sob", "gate", "updatedeta"].forEach(autosave);
+    (async function main(){
+      try {
+        const urls = computeCandidatePaths();
+        log("Candidate URLs:", urls);
+        let data=null, lastErr=null;
+        for (const u of urls) {
+          try { data = await fetchAndParse(u); $("pFetch").classList.add("ok"); $("pParse").classList.add("ok"); break; }
+          catch (e) { lastErr = e; log(String(e)); }
+        }
+        if (!data) throw lastErr || new Error("Unable to fetch data.json from any candidate path.");
 
-function loadCard() {
-  try {
-    const input = document.getElementById("jsonInput").value;
-    const card = JSON.parse(input);
-    renderCard(card);
-  } catch (e) {
-    alert("Invalid JSON");
-  }
-}
-
-function demoCard() {
-  const demo = {
-    FlightNumber: "DAL3133",
-    ShipNumber: "9561",
-    DepartureAirport: "GNV",
-    ArrivalAirport: "ATL",
-    Date: "09/16/25",
-    ETE: <input type="text" id="ete">
-Flight Level: <input type="text" id="flightlevel">
-    DepartureTime: "2001Z / 1601L",
-    ETA_Local: "1722L",
-    ETA_Zulu: "2122Z",
-    SID: <input type="text" id="sid">
-
-    STAR: <input type="text" id="star">
-    BlockFuel: <input type="text" id="fuel">
-    MinTOFuel: <input type="text" id="fuel">
-    PlannedLandingFuel: <input type="text" id="fuel">
-    MinLandingFuel: <input type="text" id="fuel">
-    AvailableDelayFuel: <input type="text" id="fuel">
-    Route: "GNV..CRG..J89..ATL"
-  };
-  renderCard(demo);
-}
-</script>
-
-<script>n
-function loadCard() {n
-  const input = document.getElementById("jsonInput");n
-  if (!input) { alert("No JSON input found."); return; }n
-  let data;n
-  try {n
-    data = JSON.parse(input.value);n
-  } catch (e) {n
-    alert("Invalid JSON");n
-    return;n
-  }n
-  if (data.cityPair) document.getElementById("citypair").textContent = data.cityPair;n
-  if (data.flightNum) document.getElementById("flightnum").textContent = data.flightNum;n
-  if (data.eta) document.getElementById("eta").value = data.eta;n
-  if (data.updatedEta) document.getElementById("updatedEta").value = data.updatedEta;n
-  if (data.ete) document.getElementById("ete").value = data.ete;n
-  if (data.flightLevel) document.getElementById("flightlevel").value = data.flightLevel;n
-  if (data.sid) document.getElementById("sid").value = data.sid;n
-  if (data.star) document.getElementById("star").value = data.star;n
-  if (data.fuel) document.getElementById("fuel").value = data.fuel;n
-  if (data.runway) document.getElementById("runway").value = data.runway;n
-  if (data.gate) document.getElementById("gate").value = data.gate;n
-  if (data.sob) document.getElementById("sob").value = data.sob;n
-  if (data.wdr) document.getElementById("wdr").value = data.wdr;n
-  console.log("Card loaded:", data);n
-  document.getElementById("loadScreen").style.opacity = 0;
-  document.getElementById("resultScreen").style.opacity = 1;
-  document.getElementById("loadScreen").style.display = "none";
-  document.getElementById("resultScreen").style.display = "block";
-}n
-</script></body>
+        // Switch screens
+        $("loadScreen").style.display = "none";
+        $("resultScreen").style.display = "block";
+        renderSummary(data);
+      } catch (err) {
+        $("pFetch").classList.add("err"); $("pParse").classList.add("err");
+        log("FATAL:", String(err));
+        alert(String(err));
+      }
+    })();
+  </script>
+</body>
 </html>
-<script>
-function loadCard() {
-  const input = document.getElementById("jsonInput");
-  if (!input) { alert("No JSON input found."); return; }
-
-  let data;
-  try {
-    data = JSON.parse(input.value);
-  } catch (e) {
-    alert("Invalid JSON");
-    return;
-  }
-
-  if (data.cityPair) document.getElementById("citypair").textContent = data.cityPair;
-  if (data.flightNum) document.getElementById("flightnum").textContent = data.flightNum;
-  if (data.eta) document.getElementById("eta").value = data.eta;
-  if (data.updatedEta) document.getElementById("updatedEta").value = data.updatedEta;
-  if (data.ete) document.getElementById("ete").value = data.ete;
-  if (data.flightLevel) document.getElementById("flightlevel").value = data.flightLevel;
-  if (data.sid) document.getElementById("sid").value = data.sid;
-  if (data.star) document.getElementById("star").value = data.star;
-  if (data.fuel) document.getElementById("fuel").value = data.fuel;
-  if (data.runway) document.getElementById("runway").value = data.runway;
-  if (data.gate) document.getElementById("gate").value = data.gate;
-  if (data.sob) document.getElementById("sob").value = data.sob;
-  if (data.wdr) document.getElementById("wdr").value = data.wdr;
-
-  console.log("Card loaded:", data);
-  document.getElementById("loadScreen").style.opacity = 0;
-  document.getElementById("resultScreen").style.opacity = 1;
-  document.getElementById("loadScreen").style.display = "none";
-  document.getElementById("resultScreen").style.display = "block";
-}
-</script>
