@@ -8,31 +8,33 @@
     body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; }
     .screen { position:absolute; inset:0; display:none; align-items:center; justify-content:center; }
     #loadScreen { display:flex; }
-    pre { text-align:left; background:#222; padding:1em; border-radius:8px; max-height:80%; overflow-y:auto; width:90%; }
+    .card { background:#222; padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.5); }
+    .row { margin:8px 0; font-size:18px; }
+    .label { font-weight:bold; margin-right:8px; }
   </style>
 </head>
 <body>
   <div id="loadScreen" class="screen"><h1>Loading TOLD Card…</h1></div>
   <div id="resultScreen" class="screen">
-    <h2>Results</h2>
-    <pre id="output"></pre>
+    <div class="card">
+      <h2>TOLD Card</h2>
+      <div class="row"><span class="label">Call Sign:</span> <span id="valCallSign"></span></div>
+      <div class="row"><span class="label">Fuel:</span> <span id="valFuel"></span></div>
+      <div class="row"><span class="label">Route:</span> <span id="valRoute"></span></div>
+      <div class="row"><span class="label">Souls on Board:</span> <span id="valSOB"></span></div>
+    </div>
   </div>
   <script>
     async function loadData() {
       try {
-        // hardcode repo name so GH Pages finds it
-        const url = "Toldviewer/data.json";
-        console.log("Fetching:", url);
-        const res = await fetch(url, {cache:"no-store"});
-        const text = await res.text();
-        console.log("Raw response:", text.slice(0,200));
-
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = JSON.parse(text);
-
+        const res = await fetch("Toldviewer/data.json", {cache:"no-store"});
+        const data = await res.json();
         document.getElementById("loadScreen").style.display="none";
         document.getElementById("resultScreen").style.display="flex";
-        document.getElementById("output").textContent = JSON.stringify(data,null,2);
+        document.getElementById("valCallSign").textContent = data.callSign || "—";
+        document.getElementById("valFuel").textContent = data.fuel || "—";
+        document.getElementById("valRoute").textContent = data.route || "—";
+        document.getElementById("valSOB").textContent = data.soulsOnBoard || "—";
       } catch (err) {
         alert("Error: " + err.message);
         console.error(err);
