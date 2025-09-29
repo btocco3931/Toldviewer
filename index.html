@@ -44,50 +44,63 @@
   button { background:#28a745; color:white; border:none; cursor:pointer; }
 
   /* Results screen */
-  #resultsScreen { padding: 10px; }
-
-  .header {
+  #resultsScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 10px;
+  }
+  .top-row {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
-    align-items: center;
-    margin-bottom: 20px;
+    align-items: start;
+    margin-bottom: 10px;
   }
-  .header-left { text-align: left; font-size: 0.9rem; color:#bbb; }
-  .header-center {
+  .left-col, .right-col {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #bbb;
+  }
+  .center-col {
     text-align: center;
+  }
+  .ship {
+    font-size: 0.9rem;
+    color: #bbb;
+    margin-bottom: 4px;
+  }
+  .flight-box {
     font-size: 2rem;
     font-weight: bold;
     border: 3px solid #fff;
     border-radius: 10px;
     padding: 5px 20px;
+    display: inline-block;
+    margin-bottom: 6px;
   }
-  .header-right { text-align: right; font-size: 0.9rem; color:#bbb; }
-
-  #cardContent {
-    padding: 10px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 10px;
-    font-family: monospace;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-  }
-
-  #backBtn {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    background: #444;
-    border: none;
-    border-radius: 8px;
-    color: #fff;
+  .route-line {
     font-size: 1rem;
+    margin-top: 4px;
+    color: #ccc;
+  }
+  .fuel-box {
+    border: 2px solid #fff;
+    padding: 2px 6px;
+    border-radius: 6px;
+    display: inline-block;
+    margin: 4px 0;
+    font-weight: bold;
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+  }
+  .footer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-bottom: 10px;
   }
 </style>
-<link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="TOLD Viewer">
-<link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
 
@@ -101,13 +114,38 @@
 
 <!-- Results Screen -->
 <div id="resultsScreen" class="screen">
-  <div class="header">
-    <div class="header-left" id="date"></div>
-    <div class="header-center" id="callsign"></div>
-    <div class="header-right" id="depTime"></div>
+  <div class="top-row">
+    <!-- Left column -->
+    <div class="left-col">
+      <div id="date"></div>
+      <div>ETE: <span id="ete">--</span></div>
+      <div>SID: <span id="sid">--</span></div>
+      <div>STAR: <span id="star">--</span></div>
+      <div>Block Fuel: <span id="blockfuel">--</span></div>
+      <div class="fuel-box">Min TO Fuel: <span id="mintofuel">--</span></div>
+      <div>Planned Ldg Fuel: <span id="pldfuel">--</span></div>
+      <div>Min Ldg Fuel: <span id="minldgfuel">--</span></div>
+      <div>Avail Delay Fuel: <span id="delayfuel">--</span></div>
+    </div>
+
+    <!-- Center column -->
+    <div class="center-col">
+      <div class="ship" id="ship"></div>
+      <div class="flight-box" id="callsign"></div>
+      <div class="route-line" id="depArr"></div>
+    </div>
+
+    <!-- Right column -->
+    <div class="right-col">
+      <div>Dep: <span id="deptime">--</span></div>
+      <div>ETA L: <span id="etal">--</span></div>
+      <div>ETA Z: <span id="etaz">--</span></div>
+    </div>
   </div>
-  <div id="cardContent"></div>
-  <button id="backBtn" onclick="goBack()">⬅ Back</button>
+
+  <div class="footer">
+    <div id="route"></div>
+  </div>
 </div>
 
 <script>
@@ -117,14 +155,30 @@ function switchScreen(show) {
 }
 
 function renderCard(card) {
-  // Header
-  document.getElementById("callsign").textContent = card.callsign || "UNKNOWN";
-  document.getElementById("date").textContent = new Date().toLocaleDateString();
-  document.getElementById("depTime").textContent = card.ts || "--:--";
+  // Left column
+  document.getElementById("date").textContent = card.Date || "--";
+  document.getElementById("ete").textContent = card.ETE || "--";
+  document.getElementById("sid").textContent = card.SID || "--";
+  document.getElementById("star").textContent = card.STAR || "--";
+  document.getElementById("blockfuel").textContent = card.BlockFuel || "--";
+  document.getElementById("mintofuel").textContent = card.MinTOFuel || "--";
+  document.getElementById("pldfuel").textContent = card.PlannedLandingFuel || "--";
+  document.getElementById("minldgfuel").textContent = card.MinLandingFuel || "--";
+  document.getElementById("delayfuel").textContent = card.AvailableDelayFuel || "--";
 
-  // Content (for now: raw JSON pretty-printed)
-  document.getElementById("cardContent").innerHTML =
-    "<pre>" + JSON.stringify(card, null, 2) + "</pre>";
+  // Center column
+  document.getElementById("ship").textContent = card.ShipNumber ? "Ship " + card.ShipNumber : "";
+  document.getElementById("callsign").textContent = card.FlightNumber || "UNKNOWN";
+  document.getElementById("depArr").textContent = card.DepartureAirport && card.ArrivalAirport ?
+      card.DepartureAirport + " – " + card.ArrivalAirport : "";
+
+  // Right column
+  document.getElementById("deptime").textContent = card.DepartureTime || "--";
+  document.getElementById("etal").textContent = card.ETA_Local || "--";
+  document.getElementById("etaz").textContent = card.ETA_Zulu || "--";
+
+  // Footer
+  document.getElementById("route").textContent = card.Route || "";
 
   switchScreen("resultsScreen");
 }
@@ -141,19 +195,27 @@ function loadCard() {
 
 function demoCard() {
   const demo = {
-    callsign: "DAL136",
-    departure: "KDTW",
-    arrival: "KMSP",
-    ts: "2025-09-28 21:10Z"
+    FlightNumber: "DAL3133",
+    ShipNumber: "9561",
+    DepartureAirport: "GNV",
+    ArrivalAirport: "ATL",
+    Date: "09/16/25",
+    ETE: ":49",
+    DepartureTime: "2001Z / 1601L",
+    ETA_Local: "1722L",
+    ETA_Zulu: "2122Z",
+    SID: "CRG4",
+    STAR: "PEACH2",
+    BlockFuel: "12.5",
+    MinTOFuel: "11.2",
+    PlannedLandingFuel: "6.8",
+    MinLandingFuel: "6.0",
+    AvailableDelayFuel: "0.8",
+    Route: "GNV..CRG..J89..ATL"
   };
   renderCard(demo);
 }
-
-function goBack() {
-  switchScreen("loadScreen");
-}
 </script>
 
-  <footer style='text-align:center;font-size:0.7rem;color:#888;margin:20px;'>Build v2 – 2025-09-28 23:46:23</footer>
 </body>
 </html>
