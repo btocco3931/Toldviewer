@@ -167,7 +167,7 @@
 </style>
 </head>
 <body>
-
+<div id="loadScreen" class="screen" style="opacity:1;">n  <h2>Load TOLD JSON</h2>n  <textarea id="jsonInput" rows="10" cols="40" placeholder="Paste JSON here"></textarea><br>n  <button onclick="loadCard()">Load Card</button>n</div>nn<div id="resultScreen" class="screen" style="opacity:0;">n  <!-- === TOLD card starts here === -->n  City Pair: <span id="citypair">___</span>nn  Flight Number: <span class="boxed" id="flightnum">___</span>nn  ETA Z: <input type="time" id="eta">n  Updated ETA: <input type="time" id="updatedEta">nn  Arrival Difference: <span id="etaDiff">___</span>nn  ETE: <input type="text" id="ete">n  Flight Level: <input type="text" id="flightlevel">nn  SID: <input type="text" id="sid">nn  STAR: <input type="text" id="star">nn  Fuel: <input type="text" id="fuel">nn  Runway: <input type="text" id="runway">nn  Gate: <input type="text" id="gate">nn  SOB: <input type="number" inputmode="numeric" class="boxed" id="sob">nn  WDR Max Takeoff Weight: <input type="number" inputmode="numeric" class="boxed" id="wdr">n  <!-- === TOLD card ends here === -->n</div>
 <!-- Load Screen -->
 <div id="loadScreen" class="screen active">
   <h2>Load TOLD Card</h2>
@@ -337,6 +337,10 @@ function loadCard() {n
   if (data.sob) document.getElementById("sob").value = data.sob;n
   if (data.wdr) document.getElementById("wdr").value = data.wdr;n
   console.log("Card loaded:", data);n
+  document.getElementById("loadScreen").style.opacity = 0;
+  document.getElementById("resultScreen").style.opacity = 1;
+  document.getElementById("loadScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
 }n
 </script></body>
 </html>
@@ -368,5 +372,9 @@ function loadCard() {
   if (data.wdr) document.getElementById("wdr").value = data.wdr;
 
   console.log("Card loaded:", data);
+  document.getElementById("loadScreen").style.opacity = 0;
+  document.getElementById("resultScreen").style.opacity = 1;
+  document.getElementById("loadScreen").style.display = "none";
+  document.getElementById("resultScreen").style.display = "block";
 }
 </script>
