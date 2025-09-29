@@ -57,13 +57,34 @@
     align-items: start;
     margin-bottom: 10px;
   }
-  .left-col, .right-col {
+  .left-col {
     font-size: 0.85rem;
-    line-height: 1.4;
+    line-height: 1.6;
     color: #bbb;
+    padding-left: 8px;
   }
+  .left-group {
+    margin-bottom: 14px;
+  }
+  .left-group div {
+    margin-bottom: 6px;
+  }
+  .fuel-group div {
+    margin-bottom: 10px;
+  }
+  .fuel-box {
+    border: 2px solid #fff;
+    padding: 2px 6px;
+    border-radius: 6px;
+    display: inline-block;
+    font-weight: bold;
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+  }
+
   .center-col {
     text-align: center;
+    padding: 0 10px;
   }
   .ship {
     font-size: 0.9rem;
@@ -84,16 +105,18 @@
     margin-top: 4px;
     color: #ccc;
   }
-  .fuel-box {
-    border: 2px solid #fff;
-    padding: 2px 6px;
-    border-radius: 6px;
-    display: inline-block;
-    margin: 4px 0;
-    font-weight: bold;
-    color: #fff;
-    background: rgba(255,255,255,0.05);
+
+  .right-col {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: #bbb;
+    text-align: right;
+    padding-right: 8px;
   }
+  .right-col div {
+    margin-bottom: 8px;
+  }
+
   .footer {
     text-align: center;
     font-size: 0.9rem;
@@ -117,15 +140,21 @@
   <div class="top-row">
     <!-- Left column -->
     <div class="left-col">
-      <div id="date"></div>
-      <div>ETE: <span id="ete">--</span></div>
-      <div>SID: <span id="sid">--</span></div>
-      <div>STAR: <span id="star">--</span></div>
-      <div>Block Fuel: <span id="blockfuel">--</span></div>
-      <div class="fuel-box">Min TO Fuel: <span id="mintofuel">--</span></div>
-      <div>Planned Ldg Fuel: <span id="pldfuel">--</span></div>
-      <div>Min Ldg Fuel: <span id="minldgfuel">--</span></div>
-      <div>Avail Delay Fuel: <span id="delayfuel">--</span></div>
+      <div class="left-group">
+        <div id="date"></div>
+        <div>ETE: <span id="ete">--</span></div>
+      </div>
+      <div class="left-group">
+        <div>SID: <span id="sid">--</span></div>
+        <div>STAR: <span id="star">--</span></div>
+      </div>
+      <div class="fuel-group">
+        <div>Block Fuel: <span id="blockfuel">--</span></div>
+        <div class="fuel-box">Min TO Fuel: <span id="mintofuel">--</span></div>
+        <div>Planned Ldg Fuel: <span id="pldfuel">--</span></div>
+        <div>Min Ldg Fuel: <span id="minldgfuel">--</span></div>
+        <div>Avail Delay Fuel: <span id="delayfuel">--</span></div>
+      </div>
     </div>
 
     <!-- Center column -->
@@ -138,7 +167,7 @@
     <!-- Right column -->
     <div class="right-col">
       <div>Dep: <span id="deptime">--</span></div>
-      <div>ETA L: <span id="etal">--</span></div>
+      <div style="margin-top:12px;">ETA L: <span id="etal">--</span></div>
       <div>ETA Z: <span id="etaz">--</span></div>
     </div>
   </div>
