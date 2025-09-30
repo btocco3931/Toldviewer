@@ -89,7 +89,7 @@
             <input type="number" inputmode="numeric" id="sob" maxlength="3" placeholder="---" class="required">
           </div>
         </div>`;
-      document.getElementById("cardContainer").innerHTML = card;
+      renderCard(jsonData);
       // reset autosave values on new load
       document.querySelectorAll(".editable input, .sob-box input").forEach(inp => {
         inp.value = "";
