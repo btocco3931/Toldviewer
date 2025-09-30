@@ -3,58 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TOLD Viewer Debug</title>
+  <title>TOLD Viewer Minimal</title>
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; align-items:center; padding:1em; }
-    #uploader { margin-bottom:1em; display:flex; flex-direction:column; gap:.5rem; }
-    button { padding:.5em 1em; border:none; border-radius:6px; background:#06f; color:#fff; font-size:1rem; cursor:pointer; }
-    pre { background:#222; color:#0f0; padding:1em; border-radius:6px; max-height:40vh; overflow:auto; width:100%; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; }
+    .screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; flex-direction:column; }
+    #loadScreen { display:flex; gap:1rem; }
+    .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:700px; }
+    .row { margin-bottom:.6em; }
+    .label { font-weight:bold; color:#ccc; margin-right:.5rem; }
   </style>
 </head>
 <body>
-  <div id="uploader">
+  <!-- Upload screen -->
+  <div id="loadScreen" class="screen" style="display:flex;">
     <input type="file" id="fileInput" accept=".json" />
     <button id="loadBtn">Load</button>
-    <p id="status">Waiting…</p>
+    <p id="status"></p>
   </div>
-  <div id="cardContainer"></div>
-  <pre id="debug"></pre>
+
+  <!-- Results screen -->
+  <div id="resultsScreen" class="screen">
+    <div id="cardContainer"></div>
+  </div>
 
   <script>
     let jsonData = null;
 
-    function debug(msg,obj) {
-      const out = typeof obj!=="undefined" ? JSON.stringify(obj,null,2) : "";
-      document.getElementById("debug").textContent += "\\n" + msg + (out?":\\n"+out:"");
-      console.log("[TOLD DEBUG]", msg, obj||"");
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
+      document.getElementById(id).style.display="flex";
     }
 
     function renderCard(d) {
-      debug("Rendering card with data", d);
-      document.getElementById("cardContainer").innerHTML = \`
-        <div style="background:#222;padding:1em;border-radius:10px;width:90%;max-width:600px;">
-          <p>Flight: \${d.FlightNumber||""}</p>
-          <p>Ship: \${d.ShipNumber||""}</p>
-          <p>Route: \${d.Route||""}</p>
-          <p>Fuel: \${d.BlockFuel||""}</p>
-          <p>ETA: \${d.ETA||""}</p>
+      document.getElementById("cardContainer").innerHTML = `
+        <div class="card">
+          <div class="row"><span class="label">Flight #:</span> ${d.FlightNumber||""}</div>
+          <div class="row"><span class="label">Ship #:</span> ${d.ShipNumber||""}</div>
+          <div class="row"><span class="label">Departure:</span> ${d.DepartureAirport||""}</div>
+          <div class="row"><span class="label">Arrival:</span> ${d.ArrivalAirport||""}</div>
+          <div class="row"><span class="label">Route:</span> ${d.Route||""}</div>
+          <div class="row"><span class="label">Block Fuel:</span> ${d.BlockFuel||""}</div>
+          <div class="row"><span class="label">ETA:</span> ${d.ETA||""}</div>
         </div>
-      \`;
+      `;
     }
 
     document.getElementById("fileInput").addEventListener("change",(e)=>{
       const file = e.target.files[0];
       if (!file) { jsonData=null; return; }
-      debug("File selected", {name:file.name,size:file.size});
       const reader = new FileReader();
       reader.onload = (evt)=>{
         try {
           jsonData = JSON.parse(evt.target.result);
-          document.getElementById("status").textContent = "File loaded OK";
-          debug("Parsed JSON", jsonData);
+          document.getElementById("status").textContent = "File loaded OK.";
         } catch(err) {
           document.getElementById("status").textContent = "Invalid JSON!";
-          debug("Parse error", {error:err.message, raw:evt.target.result});
           jsonData = null;
         }
       };
@@ -62,13 +65,12 @@
     });
 
     document.getElementById("loadBtn").addEventListener("click",()=>{
-      debug("Load button clicked");
       if (!jsonData) {
         document.getElementById("status").textContent = "No JSON data available.";
-        debug("No jsonData set");
         return;
       }
       renderCard(jsonData);
+      showScreen("resultsScreen");
     });
   </script>
 </body>
