@@ -59,7 +59,22 @@
 
   <script>
     let jsonData = null;
-
+    document.getElementById("fileInput").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          jsonData = JSON.parse(ev.target.result);
+          renderCard(jsonData);
+          showScreen("resultsScreen");
+        } catch(err) {
+          alert("Invalid JSON file");
+          console.error(err);
+        }
+      };
+      reader.readAsText(file);
+    });
     function showScreen(id) {
       document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
       document.getElementById(id).style.display="flex";
