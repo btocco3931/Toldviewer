@@ -11,7 +11,14 @@
     .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:700px; }
     .row { margin-bottom:.6em; }
     .label { font-weight:bold; color:#ccc; margin-right:.5rem; }
-  </style>
+  input.required {
+    border: 2px solid red;
+    color: red;
+  }
+  input.filled {
+    border: 2px solid white;
+    color: white;
+  }  </style>
 </head>
 <body>
   <!-- Upload screen -->
@@ -79,7 +86,13 @@
     // Save value whenever it changes
     input.addEventListener("input", () => {
       localStorage.setItem(input.id, input.value);
-    });
+      if (input.value.trim() !== "") {
+        input.classList.remove("required");
+        input.classList.add("filled");
+      } else {
+        input.classList.add("required");
+        input.classList.remove("filled");
+      }    });
   });  </script>
 </body>
 </html>
