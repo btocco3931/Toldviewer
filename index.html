@@ -3,86 +3,58 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TOLD Viewer</title>
+  <title>TOLD Viewer Debug</title>
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; }
-    .screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; }
-    #loadScreen { display:flex; flex-direction:column; gap:1rem; }
-    #resultsScreen { padding:1em; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; align-items:center; padding:1em; }
+    #uploader { margin-bottom:1em; display:flex; flex-direction:column; gap:.5rem; }
     button { padding:.5em 1em; border:none; border-radius:6px; background:#06f; color:#fff; font-size:1rem; cursor:pointer; }
-    button:hover { background:#0053ba; }
-    .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:700px; margin:auto; }
-    .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.6em; }
-    .label { font-weight:bold; color:#ccc; margin-right:1rem; }
-    input { background:#333; color:#fff; border:1px solid #444; border-radius:6px; padding:.35em .6em; width:220px; }
+    pre { background:#222; color:#0f0; padding:1em; border-radius:6px; max-height:40vh; overflow:auto; width:100%; }
   </style>
 </head>
 <body>
-  <!-- Load Screen -->
-  <div id="loadScreen" class="screen" style="display:flex;">
+  <div id="uploader">
     <input type="file" id="fileInput" accept=".json" />
     <button id="loadBtn">Load</button>
-    <p id="status" style="color:#ccc;"></p>
+    <p id="status">Waiting…</p>
   </div>
-
-  <!-- Results Screen -->
-  <div id="resultsScreen" class="screen">
-    <div id="cardContainer"></div>
-  </div>
+  <div id="cardContainer"></div>
+  <pre id="debug"></pre>
 
   <script>
     let jsonData = null;
-    const STORAGE_KEY = "toldCardData";
 
-    function saveToStorage(data) {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
-    }
-    function loadFromStorage() {
-      try {
-        const s = localStorage.getItem(STORAGE_KEY);
-        return s ? JSON.parse(s) : {};
-      } catch { return {}; }
-    }
-
-    function showScreen(id) {
-      document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
-      document.getElementById(id).style.display="flex";
+    function debug(msg,obj) {
+      const out = typeof obj!=="undefined" ? JSON.stringify(obj,null,2) : "";
+      document.getElementById("debug").textContent += "\\n" + msg + (out?":\\n"+out:"");
+      console.log("[TOLD DEBUG]", msg, obj||"");
     }
 
     function renderCard(d) {
+      debug("Rendering card with data", d);
       document.getElementById("cardContainer").innerHTML = \`
-        <div class="card">
-          <div class="row"><span class="label">Flight #:</span><input type="text" id="FlightNumber" value="\${d.FlightNumber||""}" /></div>
-          <div class="row"><span class="label">Ship #:</span><input type="text" id="ShipNumber" value="\${d.ShipNumber||""}" /></div>
-          <div class="row"><span class="label">Departure:</span><input type="text" id="DepartureAirport" value="\${d.DepartureAirport||""}" /></div>
-          <div class="row"><span class="label">Arrival:</span><input type="text" id="ArrivalAirport" value="\${d.ArrivalAirport||""}" /></div>
-          <div class="row"><span class="label">Route:</span><input type="text" id="Route" value="\${d.Route||""}" /></div>
-          <div class="row"><span class="label">Block Fuel:</span><input type="text" id="BlockFuel" value="\${d.BlockFuel||""}" /></div>
-          <div class="row"><span class="label">ETA:</span><input type="text" id="ETA" value="\${d.ETA||""}" /></div>
-          <div class="row"><span class="label">Planned Landing Fuel:</span><input type="text" id="PlannedLandingFuel" value="\${d.PlannedLandingFuel||""}" /></div>
+        <div style="background:#222;padding:1em;border-radius:10px;width:90%;max-width:600px;">
+          <p>Flight: \${d.FlightNumber||""}</p>
+          <p>Ship: \${d.ShipNumber||""}</p>
+          <p>Route: \${d.Route||""}</p>
+          <p>Fuel: \${d.BlockFuel||""}</p>
+          <p>ETA: \${d.ETA||""}</p>
         </div>
       \`;
-
-      ["FlightNumber","ShipNumber","DepartureAirport","ArrivalAirport","Route","BlockFuel","ETA","PlannedLandingFuel"].forEach(id=>{
-        const el=document.getElementById(id);
-        el.addEventListener("input",()=>{
-          d[id]=el.value;
-          saveToStorage(d);
-        });
-      });
     }
 
     document.getElementById("fileInput").addEventListener("change",(e)=>{
       const file = e.target.files[0];
-      if (!file) { jsonData = null; return; }
+      if (!file) { jsonData=null; return; }
+      debug("File selected", {name:file.name,size:file.size});
       const reader = new FileReader();
       reader.onload = (evt)=>{
         try {
           jsonData = JSON.parse(evt.target.result);
-          saveToStorage(jsonData);
-          document.getElementById("status").textContent = "File loaded. Click Load to continue.";
+          document.getElementById("status").textContent = "File loaded OK";
+          debug("Parsed JSON", jsonData);
         } catch(err) {
-          document.getElementById("status").textContent = "Invalid JSON file.";
+          document.getElementById("status").textContent = "Invalid JSON!";
+          debug("Parse error", {error:err.message, raw:evt.target.result});
           jsonData = null;
         }
       };
@@ -90,13 +62,13 @@
     });
 
     document.getElementById("loadBtn").addEventListener("click",()=>{
-      if (!jsonData) { jsonData = loadFromStorage(); }
-      if (!jsonData || Object.keys(jsonData).length===0) {
+      debug("Load button clicked");
+      if (!jsonData) {
         document.getElementById("status").textContent = "No JSON data available.";
+        debug("No jsonData set");
         return;
       }
       renderCard(jsonData);
-      showScreen("resultsScreen");
     });
   </script>
 </body>
