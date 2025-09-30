@@ -42,7 +42,10 @@
   input.required { border: 2px solid red; color: red; }
   input.filled { border: 2px solid white; color: white; }
   .sob-box { position: absolute; bottom: 20px; right: 20px; border: 3px solid white; padding: 10px; width: 60px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; }
-  .sob-box input { border: none; background: transparent; text-align: center; width: 100%; font-size: 1.2em; color: inherit; }  }  }  </style>
+  input.required { border: 2px solid red; color: red; }
+  input.filled { border: 2px solid white; color: white; }
+  .sob-box { position: absolute; bottom: 20px; right: 20px; border: 3px solid white; padding: 10px; width: 60px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; }
+  .sob-box input { border: none; background: transparent; text-align: center; width: 100%; font-size: 1.2em; color: inherit; }  .sob-box input { border: none; background: transparent; text-align: center; width: 100%; font-size: 1.2em; color: inherit; }  }  }  </style>
 </head>
 <body>
   <!-- Upload screen -->
@@ -106,8 +109,7 @@
             <input type="number" inputmode="numeric" id="sob" maxlength="3" placeholder="---" class="required">
           </div>
         </div>`;
-      renderCard(jsonData);
-      // reset autosave values on new load
+      document.getElementById("cardContainer").innerHTML = card;
       document.querySelectorAll(".editable input, .sob-box input").forEach(inp => {
         inp.value = "";
         localStorage.removeItem(inp.id);
@@ -126,5 +128,4 @@
           }
         });
       });
-    }</body>
-</html>
+    }</html>
