@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TOLD Viewer</title>
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:1em; }
-    #uploader { margin-bottom:1em; }
-    button { padding:0.5em 1em; border:none; border-radius:6px; background:#06f; color:#fff; font-size:1rem; cursor:pointer; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; align-items:center; padding:1em; }
+    #uploader { margin-bottom:1em; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    button { padding:.5em 1em; border:none; border-radius:6px; background:#06f; color:#fff; font-size:1rem; cursor:pointer; }
     button:hover { background:#0053ba; }
     .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:600px; margin-top:1em; }
-    .row { display:flex; justify-content:space-between; margin-bottom:0.5em; }
-    .label { font-weight:bold; color:#ccc; margin-right:1em; }
-    input { background:#333; color:#fff; border:1px solid #444; border-radius:6px; padding:0.2em 0.5em; width:150px; }
+    .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.6em; }
+    .label { font-weight:bold; color:#ccc; margin-right:1rem; }
+    input { background:#333; color:#fff; border:1px solid #444; border-radius:6px; padding:.35em .6em; width:160px; }
   </style>
 </head>
 <body>
@@ -20,18 +20,27 @@
     <input type="file" id="fileInput" accept=".json" />
     <button id="loadBtn">Load</button>
   </div>
-  <div id="cardContainer"></div>
+
+  <div id="cardContainer"><p>Select a JSON file, then click <b>Load</b>.</p></div>
+
   <script>
-    let jsonData=null; const STORAGE_KEY="toldCardData";
-    function loadFromStorage(){const s=localStorage.getItem(STORAGE_KEY);if(s){try{return JSON.parse(s);}catch(e){return {};}}return {};}
-    function saveToStorage(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
-    function renderCard(d){
-      document.getElementById("cardContainer").innerHTML=\`
+    let jsonData = null;
+    const STORAGE_KEY = "toldCardData";
+
+    function saveToStorage(data) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+    }
+    function loadFromStorage() {
+      try {
+        const s = localStorage.getItem(STORAGE_KEY);
+        return s ? JSON.parse(s) : {};
+      } catch { return {}; }
+    }
+
+    function renderCard(d) {
+      document.getElementById("cardContainer").innerHTML = \`
         <div class="card">
-          <div class="row"><span class="label">Call Sign:</span><input type="text" id="callSign" value="\${d.callSign||""}" /></div>
-          <div class="row"><span class="label">Route:</span><input type="text" id="route" value="\${d.route||""}" /></div>
-          <div class="row"><span class="label">Fuel:</span><input type="text" id="fuel" value="\${d.fuel||""}" /></div>
-          <div class="row"><span class="label">ETA:</span><input type="number" inputmode="numeric" id="eta" value="\${d.eta||""}" /></div>
+          <div class="row"><span class="label">Call Sign:</span><input type="text" id="callS
 sed -i.bak '1,$d' index.html && cat <<'EOF' >> index.html
 <!DOCTYPE html>
 <html lang="en">
@@ -40,14 +49,14 @@ sed -i.bak '1,$d' index.html && cat <<'EOF' >> index.html
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TOLD Viewer</title>
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; padding:1em; }
-    #uploader { margin-bottom:1em; }
-    button { padding:0.5em 1em; border:none; border-radius:6px; background:#06f; color:#fff; font-size:1rem; cursor:pointer; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; align-items:center; padding:1em; }
+    #uploader { margin-bottom:1em; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    button { padding:.5em 1em; border:none; border-radius:6px; background:#06f; color:#fff; font-size:1rem; cursor:pointer; }
     button:hover { background:#0053ba; }
     .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:600px; margin-top:1em; }
-    .row { display:flex; justify-content:space-between; margin-bottom:0.5em; }
-    .label { font-weight:bold; color:#ccc; margin-right:1em; }
-    input { background:#333; color:#fff; border:1px solid #444; border-radius:6px; padding:0.2em 0.5em; width:150px; }
+    .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.6em; }
+    .label { font-weight:bold; color:#ccc; margin-right:1rem; }
+    input { background:#333; color:#fff; border:1px solid #444; border-radius:6px; padding:.35em .6em; width:160px; }
   </style>
 </head>
 <body>
@@ -55,13 +64,25 @@ sed -i.bak '1,$d' index.html && cat <<'EOF' >> index.html
     <input type="file" id="fileInput" accept=".json" />
     <button id="loadBtn">Load</button>
   </div>
-  <div id="cardContainer"></div>
+
+  <div id="cardContainer"><p>Select a JSON file, then click <b>Load</b>.</p></div>
+
   <script>
-    let jsonData=null; const STORAGE_KEY="toldCardData";
-    function loadFromStorage(){const s=localStorage.getItem(STORAGE_KEY);if(s){try{return JSON.parse(s);}catch(e){return {};}}return {};}
-    function saveToStorage(d){localStorage.setItem(STORAGE_KEY,JSON.stringify(d));}
-    function renderCard(d){
-      document.getElementById("cardContainer").innerHTML=\`
+    let jsonData = null;
+    const STORAGE_KEY = "toldCardData";
+
+    function saveToStorage(data) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+    }
+    function loadFromStorage() {
+      try {
+        const s = localStorage.getItem(STORAGE_KEY);
+        return s ? JSON.parse(s) : {};
+      } catch { return {}; }
+    }
+
+    function renderCard(d) {
+      document.getElementById("cardContainer").innerHTML = \`
         <div class="card">
           <div class="row"><span class="label">Call Sign:</span><input type="text" id="callSign" value="\${d.callSign||""}" /></div>
           <div class="row"><span class="label">Route:</span><input type="text" id="route" value="\${d.route||""}" /></div>
@@ -69,30 +90,44 @@ sed -i.bak '1,$d' index.html && cat <<'EOF' >> index.html
           <div class="row"><span class="label">ETA:</span><input type="number" inputmode="numeric" id="eta" value="\${d.eta||""}" /></div>
           <div class="row"><span class="label">SOB:</span><input type="number" inputmode="numeric" id="sob" value="\${d.SOB||""}" /></div>
           <div class="row"><span class="label">WDR Max TOGW:</span><input type="number" inputmode="numeric" id="wdr" value="\${d.wdr||""}" /></div>
-        </div>\`;
+        </div>
+      \`;
       ["callSign","route","fuel","eta","sob","wdr"].forEach(id=>{
-        document.getElementById(id).addEventListener("input",()=>{
-          d[id==="sob"?"SOB":id]=document.getElementById(id).value;
+        const el=document.getElementById(id);
+        el.addEventListener("input",()=>{
+          d[id==="sob"?"SOB":id] = el.value;
           saveToStorage(d);
         });
       });
     }
+
+    // Handle file selection
     document.getElementById("fileInput").addEventListener("change",(e)=>{
-      const f=e.target.files[0]; if(!f) return;
-      const r=new FileReader();
-      r.onload=(evt)=>{
-        try{jsonData=JSON.parse(evt.target.result);saveToStorage(jsonData);renderCard(jsonData);}
-        catch(err){document.getElementById("cardContainer").innerHTML="<p>Invalid JSON file.</p>";}
-      }; r.readAsText(f);
+      const file = e.target.files[0];
+      if (!file) { jsonData = null; return; }
+      const reader = new FileReader();
+      reader.onload = (evt)=>{
+        try {
+          jsonData = JSON.parse(evt.target.result);
+          saveToStorage(jsonData);
+          document.getElementById("cardContainer").innerHTML = "<p>File loaded. Click <b>Load</b> to view.</p>";
+        } catch(err) {
+          console.error("Parse error:", err);
+          document.getElementById("cardContainer").innerHTML = "<p>Invalid JSON file.</p>";
+          jsonData = null;
+        }
+      };
+      reader.readAsText(file);
     });
+
+    // Handle Load button
     document.getElementById("loadBtn").addEventListener("click",()=>{
-      if(!jsonData){jsonData=loadFromStorage();}
-      if(!jsonData||Object.keys(jsonData).length===0){document.getElementById("cardContainer").innerHTML="<p>No data available.</p>";return;}
+      if (!jsonData) { jsonData = loadFromStorage(); }
+      if (!jsonData || Object.keys(jsonData).length===0) {
+        document.getElementById("cardContainer").innerHTML = "<p>No JSON data available.</p>";
+        return;
+      }
       renderCard(jsonData);
-    });
-    window.addEventListener("DOMContentLoaded",()=>{
-      const saved=loadFromStorage();
-      if(Object.keys(saved).length>0){renderCard(saved);}
     });
   </script>
 </body>
