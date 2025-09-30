@@ -72,6 +72,14 @@
       renderCard(jsonData);
       showScreen("resultsScreen");
     });
-  </script>
+  document.querySelectorAll("input").forEach(input => {
+    // Restore saved value on load
+    const saved = localStorage.getItem(input.id);
+    if (saved) input.value = saved;
+    // Save value whenever it changes
+    input.addEventListener("input", () => {
+      localStorage.setItem(input.id, input.value);
+    });
+  });  </script>
 </body>
 </html>
