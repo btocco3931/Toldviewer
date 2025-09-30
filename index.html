@@ -5,23 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TOLD Viewer</title>
   <style>
-    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; display:flex; flex-direction:column; align-items:center; padding:1em; }
-    #uploader { margin-bottom:1em; display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; }
+    .screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; }
+    #loadScreen { display:flex; flex-direction:column; gap:1rem; }
+    #resultsScreen { padding:1em; }
     button { padding:.5em 1em; border:none; border-radius:6px; background:#06f; color:#fff; font-size:1rem; cursor:pointer; }
     button:hover { background:#0053ba; }
-    .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:700px; margin-top:1em; }
+    .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:700px; margin:auto; }
     .row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.6em; }
     .label { font-weight:bold; color:#ccc; margin-right:1rem; }
     input { background:#333; color:#fff; border:1px solid #444; border-radius:6px; padding:.35em .6em; width:220px; }
   </style>
 </head>
 <body>
-  <div id="uploader">
+  <!-- Load Screen -->
+  <div id="loadScreen" class="screen" style="display:flex;">
     <input type="file" id="fileInput" accept=".json" />
     <button id="loadBtn">Load</button>
+    <p id="status" style="color:#ccc;"></p>
   </div>
 
-  <div id="cardContainer"><p>Select a JSON file, then click <b>Load</b>.</p></div>
+  <!-- Results Screen -->
+  <div id="resultsScreen" class="screen">
+    <div id="cardContainer"></div>
+  </div>
 
   <script>
     let jsonData = null;
@@ -35,6 +42,11 @@
         const s = localStorage.getItem(STORAGE_KEY);
         return s ? JSON.parse(s) : {};
       } catch { return {}; }
+    }
+
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
+      document.getElementById(id).style.display="flex";
     }
 
     function renderCard(d) {
@@ -51,7 +63,6 @@
         </div>
       \`;
 
-      // auto-save edits
       ["FlightNumber","ShipNumber","DepartureAirport","ArrivalAirport","Route","BlockFuel","ETA","PlannedLandingFuel"].forEach(id=>{
         const el=document.getElementById(id);
         el.addEventListener("input",()=>{
@@ -69,9 +80,9 @@
         try {
           jsonData = JSON.parse(evt.target.result);
           saveToStorage(jsonData);
-          document.getElementById("cardContainer").innerHTML = "<p>File loaded. Click <b>Load</b> to view.</p>";
+          document.getElementById("status").textContent = "File loaded. Click Load to continue.";
         } catch(err) {
-          document.getElementById("cardContainer").innerHTML = "<p>Invalid JSON file.</p>";
+          document.getElementById("status").textContent = "Invalid JSON file.";
           jsonData = null;
         }
       };
@@ -81,10 +92,11 @@
     document.getElementById("loadBtn").addEventListener("click",()=>{
       if (!jsonData) { jsonData = loadFromStorage(); }
       if (!jsonData || Object.keys(jsonData).length===0) {
-        document.getElementById("cardContainer").innerHTML = "<p>No JSON data available.</p>";
+        document.getElementById("status").textContent = "No JSON data available.";
         return;
       }
       renderCard(jsonData);
+      showScreen("resultsScreen");
     });
   </script>
 </body>
