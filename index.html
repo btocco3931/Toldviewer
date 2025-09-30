@@ -14,23 +14,22 @@
   <div id="load">Loading TOLD Card…</div>
   <div id="results"></div>
 
-  <script>
-    async function loadData() {
-      try {
-        const url = "Toldviewer/data.json"; // adjust if repo name changes
-        const res = await fetch(url, {cache:"no-store"});
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        const data = await res.json();
-        document.getElementById("load").style.display = "none";
-        document.getElementById("results").style.display = "block";
-        document.getElementById("results").textContent = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById("results").style.display = "block";
-        document.getElementById("results").textContent = "Error: " + err.message;
-        console.error(err);
-      }
-    }
-    loadData();
-  </script>
-</body>
+  <script>n
+    async function loadData() {n
+      try {n
+        const url = "Toldviewer/data.json";n
+        const res = await fetch(url, {cache:"no-store"});n
+        if (!res.ok) throw new Error("HTTP " + res.status);n
+        const data = await res.json();n
+        document.getElementById("load").style.display = "none";n
+        document.getElementById("results").style.display = "block";n
+        document.getElementById("results").textContent = JSON.stringify(data, null, 2);n
+      } catch (err) {n
+        document.getElementById("results").style.display = "block";n
+        document.getElementById("results").textContent = "Error: " + err.message;n
+        console.error(err);n
+      }n
+    }n
+    loadData();n
+  </script></body>
 </html>
