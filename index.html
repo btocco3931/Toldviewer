@@ -37,13 +37,13 @@
     function renderCard(d) {
       document.getElementById("cardContainer").innerHTML = `
         <div class="card">
-          <div class="row"><span class="label">Flight #:</span> ${d.FlightNumber||""}</div>
-          <div class="row"><span class="label">Ship #:</span> ${d.ShipNumber||""}</div>
-          <div class="row"><span class="label">Departure:</span> ${d.DepartureAirport||""}</div>
-          <div class="row"><span class="label">Arrival:</span> ${d.ArrivalAirport||""}</div>
-          <div class="row"><span class="label">Route:</span> ${d.Route||""}</div>
-          <div class="row"><span class="label">Block Fuel:</span> ${d.BlockFuel||""}</div>
-          <div class="row"><span class="label">ETA:</span> ${d.ETA||""}</div>
+          <div class="row"><span class="label">Flight #:</span> ${data.FlightNumber||""}</div>
+          <div class="row"><span class="label">Ship #:</span> ${data.ShipNumber||""}</div>
+          <div class="row"><span class="label">Departure:</span> ${data.DepartureAirport||""}</div>
+          <div class="row"><span class="label">Arrival:</span> ${data.ArrivalAirport||""}</div>
+          <div class="row"><span class="label">Route:</span> ${data.Route||""}</div>
+          <div class="row"><span class="label">Block Fuel:</span> ${data.BlockFuel||""}</div>
+          <div class="row"><span class="label">ETA:</span> ${data.ETA||""}</div>
         </div>
       `;
     }
