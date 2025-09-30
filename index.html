@@ -39,7 +39,10 @@
     width: 100%;
     font-size: 1.2em;
     color: inherit;
-  }  }  </style>
+  input.required { border: 2px solid red; color: red; }
+  input.filled { border: 2px solid white; color: white; }
+  .sob-box { position: absolute; bottom: 20px; right: 20px; border: 3px solid white; padding: 10px; width: 60px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; }
+  .sob-box input { border: none; background: transparent; text-align: center; width: 100%; font-size: 1.2em; color: inherit; }  }  }  </style>
 </head>
 <body>
   <!-- Upload screen -->
@@ -62,58 +65,49 @@
       document.getElementById(id).style.display="flex";
     }
 
-    function renderCard(d) {
-      document.getElementById("cardContainer").innerHTML = `
-        <div class="card">
+    function renderCard(data) {
+      const card = `
+        <div class="card" style="position:relative;">
           <div class="row"><span class="label">Flight #:</span> ${data.FlightNumber||""}</div>
           <div class="row"><span class="label">Ship #:</span> ${data.ShipNumber||""}</div>
           <div class="row"><span class="label">Departure:</span> ${data.DepartureAirport||""}</div>
           <div class="row"><span class="label">Arrival:</span> ${data.ArrivalAirport||""}</div>
           <div class="row"><span class="label">Route:</span> ${data.Route||""}</div>
           <div class="row"><span class="label">Block Fuel:</span> ${data.BlockFuel||""}</div>
-          <div class="row"><span class="label">ETA:</span> ${data.ETA||""}</div>
-        </div>
-      `;
-    }
-
-    document.getElementById("fileInput").addEventListener("change",(e)=>{
-      const file = e.target.files[0];
-      if (!file) { jsonData=null; return; }
-      const reader = new FileReader();
-      reader.onload = (evt)=>{
-        try {
-          jsonData = JSON.parse(evt.target.result);
-          document.getElementById("status").textContent = "File loaded OK.";
-        } catch(err) {
-          document.getElementById("status").textContent = "Invalid JSON!";
-          jsonData = null;
-        }
-      };
-      reader.readAsText(file);
-    });
-
-    document.getElementById("loadBtn").addEventListener("click",()=>{
-      if (!jsonData) {
-        document.getElementById("status").textContent = "No JSON data available.";
-        return;
-      }
-      renderCard(jsonData);
-      showScreen("resultsScreen");
-    });
-  document.querySelectorAll("input").forEach(input => {
-    // Restore saved value on load
-    const saved = localStorage.getItem(input.id);
-    if (saved) input.value = saved;
-    // Save value whenever it changes
-    input.addEventListener("input", () => {
-      localStorage.setItem(input.id, input.value);
-      if (input.value.trim() !== "") {
-        input.classList.remove("required");
-        input.classList.add("filled");
-      } else {
-        input.classList.add("required");
-        input.classList.remove("filled");
-      }    });
-  });  </script>
-</body>
+          <div class="row"><span class="label">Min TO Fuel:</span> ${data.MinTOFuel||""}</div>
+          <div class="row"><span class="label">Planned Landing Fuel:</span> ${data.PlannedLandingFuel||""}</div>
+          <div class="row"><span class="label">Min Landing Fuel:</span> ${data.MinLandingFuel||""}</div>
+          <div class="row"><span class="label">ETE:</span> ${data.ETE||""}</div>
+          <div class="row"><span class="label">Departure Time:</span> ${data.DepartureTime||""}</div>
+          <div class="row"><span class="label">ETA:</span> ${data.ETA||""} (${data.ETA_Zulu||""} / ${data.ETA_Local||""})</div>
+          <div class="editable">
+            <p>Updated ETA: <input type="number" inputmode="numeric" id="updatedETA" class="required" placeholder="----"></p>
+            <p>Gate: <input type="text" id="gateInfo" class="required" placeholder="Enter Gate"></p>
+            <p>WDR Max TO Weight: <input type="number" inputmode="numeric" id="wdrMax" class="required" placeholder="-----"></p>
+          </div>
+          <div class="sob-box">
+            <input type="number" inputmode="numeric" id="sob" maxlength="3" placeholder="---" class="required">
+          </div>
+        </div>`;
+      document.getElementById("cardContainer").innerHTML = card;
+      // reset autosave values on new load
+      document.querySelectorAll(".editable input, .sob-box input").forEach(inp => {
+        inp.value = "";
+        localStorage.removeItem(inp.id);
+        inp.classList.add("required");
+        inp.classList.remove("filled");
+        const saved = localStorage.getItem(inp.id);
+        if (saved) inp.value = saved;
+        inp.addEventListener("input", () => {
+          localStorage.setItem(inp.id, inp.value);
+          if (inp.value.trim() !== "") {
+            inp.classList.remove("required");
+            inp.classList.add("filled");
+          } else {
+            inp.classList.add("required");
+            inp.classList.remove("filled");
+          }
+        });
+      });
+    }</body>
 </html>
