@@ -46,6 +46,11 @@
   .countdown.negative{ color:#00d26a; } /* before departure */
   .countdown.positive{ color:#ff3b30; } /* after departure */
   #dep-countdown-fixed{ position:absolute; top:10px; right:10px; z-index:20; }
+  /* === Departure countdown badge === */
+  .countdown{ margin-left:8px; padding:2px 8px; border-radius:12px; font-variant-numeric: tabular-nums; border:1px solid currentColor; }
+  .countdown.negative{ color:#00d26a; } /* before departure */
+  .countdown.positive{ color:#ff3b30; } /* after departure */
+  #dep-countdown-fixed{ position:absolute; top:10px; right:10px; z-index:20; }
 </style>
 </head>
 <body>
@@ -142,6 +147,7 @@
   }
 })();
 </script>
+  <script src="js/departure-countdown.js"></script>
   <script src="js/departure-countdown.js"></script>
   <script src="js/departure-countdown.js"></script>
 </body>
