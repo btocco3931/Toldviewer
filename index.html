@@ -37,6 +37,10 @@
     font-weight:700; font-size:1.3rem;
   }
   .sob-box input { border:none; width:100%; text-align:center; font:inherit; color:inherit; background:transparent; }
+  /* Departure countdown badge */
+  .countdown{ margin-left:8px; padding:2px 8px; border-radius:10px; font-variant-numeric: tabular-nums; border:1px solid currentColor; }
+  .countdown.negative{ color:#00d26a; }
+  .countdown.positive{ color:#ff3b30; }
 </style>
 </head>
 <body>
@@ -133,5 +137,6 @@
   }
 })();
 </script>
+  <script src="js/departure-countdown.js"></script>
 </body>
 </html>
