@@ -1,0 +1,104 @@
+<!-- TEST VERSION --><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>TOLD Viewer</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#111; color:#fff; }
+  .screen { display:none; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
+  #loadScreen { flex-direction:column; gap:12px; }
+  h1 { margin:0 0 8px 0; font-size:1.4rem; opacity:.9; }
+  input[type="file"] { font-size:1rem; }
+  #resultsScreen { align-items:flex-start; }
+  .card { position:relative; background:#1b1b1b; border-radius:16px; padding:20px 20px 88px; width:min(720px, 92vw); box-shadow:0 8px 24px rgba(0,0,0,.45); }
+  .card h2 { margin:0 0 10px 0; font-size:1.4rem; }
+  .row { display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px dashed #2b2b2b; }
+  .row:last-of-type { border-bottom:0; }
+  .label { opacity:.75; }
+  .editable p { margin:10px 0; }
+  .editable input, .sob-box input {
+    background:transparent; color:inherit; outline:none; padding:6px 8px; border-radius:10px;
+  }
+  /* Empty = red, Filled = white */
+  input.required { border:2px solid #e33; color:#e33; }
+  input.filled   { border:2px solid #ddd; color:#fff; }
+
+  /* SOB box */
+  .sob-box {
+    position:absolute; bottom:16px; right:16px;
+    border:3px solid #fff; border-radius:12px;
+    width:82px; height:56px; display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:1.3rem;
+  }
+  .sob-box input { border:none; width:100%; text-align:center; font:inherit; color:inherit; }
+
+  /* Hide number spinners on some browsers if they show up */
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+</style>
+<style>
+  body{background:#111;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  .screen{display:none;align-items:center;justify-content:center;min-height:100vh;padding:20px}
+  #resultsScreen{align-items:flex-start}
+  .card{position:relative;background:#1b1b1b;border-radius:16px;padding:20px 20px 88px;width:min(720px,92vw);box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  .row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;border-bottom:1px dashed #2b2b2b}
+  .row:last-of-type{border-bottom:0}.label{opacity:.75}
+  input.required{border:2px solid #e33;color:#e33;background:transparent;padding:6px 8px;border-radius:10px}
+  input.filled{border:2px solid #ddd;color:#fff;background:transparent;padding:6px 8px;border-radius:10px}
+  .sob-box{position:absolute;bottom:16px;right:16px;border:3px solid #fff;border-radius:12px;width:82px;height:56px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.3rem}
+  .sob-box input{border:none;width:100%;text-align:center;font:inherit;color:inherit;background:transparent}
+</style></head>
+<body>
+
+<!-- Load screen -->
+<div id="loadScreen" class="screen">
+  <h1>Load TOLD JSON</h1>
+  <input type="file" id="fileInput" accept=".json" />
+  <div style="opacity:.7;font-size:.95rem">Choose your <code>data.json</code> from Pythonista.</div>
+</div>
+
+<!-- Results screen -->
+<div id="resultsScreen" class="screen">
+  <div id="cardContainer"></div>
+</div>
+
+<script>
+let jsonData = null;
+
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
+  document.getElementById(id).style.display = "flex";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  showScreen("loadScreen");
+  const picker = document.getElementById("fileInput");
+  picker.addEventListener("change", (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    console.log("file selected:", file.name);    const reader = new FileReader();
+    reader.onload = (ev) => {
+        console.log("reader loaded file, size:", ev.target.result.length);      try {
+        jsonData = JSON.parse(ev.target.result);
+      } catch (err) {
+        alert("Invalid JSON file"); console.error(err); return;
+      }
+      // Clear autosaved editable fields for a NEW load
+      ["updatedETA","gateInfo","wdrMax","sob"].forEach(k => localStorage.removeItem(k));
+      renderCard(jsonData);
+      showScreen("resultsScreen");
+    };
+    reader.readAsText(file);
+  });
+});
+
+function renderCard(data) {
+  var html = "";
+  html += "<div class=card>";
+  html += "<h2>Flight: " + (data.FlightNumber||"") + "</h2>";
+  html += "<div class=row><span class=label>Ship #</span><span>" + (data.ShipNumber||"") + "</span></div>";
+  html += "</div>";
+  document.getElementById("cardContainer").innerHTML = html;
+}

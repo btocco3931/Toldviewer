@@ -1,0 +1,68 @@
+# (paste contents, save + exit)
+
+# Apply patch
+git apply told-update.patch
+
+# Commit & push
+git add told.html
+git commit -m "Update TOLD card: Arrival Difference line with color 
+coding, reset on load"
+git push
+# (paste contents, save + exit)
+
+# Apply patch
+git apply told-update.patch
+
+# Commit & push
+git add told.html
+git commit -m "Update TOLD card: Arrival Difference line with color 
+coding, reset on load"
+git push
+diff --git a/told.html b/told.html
+index 1111111..2222222 100644
+--- a/told.html
++++ b/told.html
+@@ -20,7 +20,7 @@
+ ETA Z: <input type="time" id="eta">
+ Updated ETA: <input type="time" id="updatedEta">
+ 
+-ETA Diff: <span id="etaDiff">___</span>
++Arrival Difference: <span id="etaDiff">___</span>
+ 
+ ETE: <input type="text" id="ete">
+ Flight Level: <input type="text" id="flightlevel">
+@@ -65,11 +65,19 @@
+     let diff = (updDate - etaDate) / 60000; // minutes
+     if (isNaN(diff)) { out.textContent = "___"; return; }
+ 
+-    if (diff > 0) out.textContent = "Arrival Difference: +" + diff + " 
+min (late)";
+-    else if (diff < 0) out.textContent = "Arrival Difference: " + diff + 
+" min (early)";
+-    else out.textContent = "Arrival Difference: On Time";
++    if (diff > 0) {
++      out.style.color = "red";
++      out.textContent = "Arrival Difference: " + Math.abs(diff) + " min 
+(late)";
++    }
++    else if (diff < 0) {
++      out.style.color = "lime";
++      out.textContent = "Arrival Difference: " + Math.abs(diff) + " min 
+(early)";
++    }
++    else {
++      out.style.color = "yellow";
++      out.textContent = "Arrival Difference: On Time";
++    }
+   }
+ 
+   document.getElementById("eta").addEventListener("change", calcDiff);
+@@ -77,6 +85,7 @@
+   // Reset all inputs on load
+   window.onload = () => {
+     document.querySelectorAll("input").forEach(el => el.value = "");
++    document.getElementById("etaDiff").style.color = "lime";
+   };
+ </script>
+ </body>
+

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TOLD Viewer Minimal</title>
+  <style>
+    body { margin:0; font-family:system-ui,sans-serif; background:#111; color:#fff; height:100vh; display:flex; align-items:center; justify-content:center; }
+    .screen { position:absolute; top:0; left:0; width:100%; height:100%; display:none; align-items:center; justify-content:center; flex-direction:column; }
+    #loadScreen { display:flex; gap:1rem; }
+    .card { background:#222; padding:1.5em; border-radius:10px; width:90%; max-width:700px; }
+    .row { margin-bottom:.6em; }
+    .label { font-weight:bold; color:#ccc; margin-right:.5rem; }
+  input.required {
+    border: 2px solid red;
+    color: red;
+  }
+  input.filled {
+    border: 2px solid white;
+    color: white;
+  .sob-box {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    border: 3px solid white;
+    padding: 10px;
+    width: 60px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2em;
+  }
+  .sob-box input {
+    border: none;
+    background: transparent;
+    text-align: center;
+    width: 100%;
+    font-size: 1.2em;
+    color: inherit;
+  input.required { border: 2px solid red; color: red; }
+  input.filled { border: 2px solid white; color: white; }
+  .sob-box { position: absolute; bottom: 20px; right: 20px; border: 3px solid white; padding: 10px; width: 60px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; }
+  input.required { border: 2px solid red; color: red; }
+  input.filled { border: 2px solid white; color: white; }
+  .sob-box { position: absolute; bottom: 20px; right: 20px; border: 3px solid white; padding: 10px; width: 60px; height: 40px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.2em; }
+  .sob-box input { border: none; background: transparent; text-align: center; width: 100%; font-size: 1.2em; color: inherit; }  .sob-box input { border: none; background: transparent; text-align: center; width: 100%; font-size: 1.2em; color: inherit; }  }  }  </style>
+</head>
+<body>
+  <!-- Upload screen -->
+  <div id="loadScreen" class="screen" style="display:flex;">
+    <input type="file" id="fileInput" accept=".json" />
+    <button id="loadBtn">Load</button>
+    <p id="status"></p>
+  </div>
+
+  <!-- Results screen -->
+  <div id="loadScreen" class="screen">
+    <input type="file" id="fileInput" accept=".json">
+  </div>  <div id="resultsScreen" class="screen">
+    <div id="cardContainer"></div>
+  </div>
+
+  <script>
+    let jsonData = null;
+    document.getElementById("fileInput").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          jsonData = JSON.parse(ev.target.result);
+          renderCard(jsonData);
+          showScreen("resultsScreen");
+        } catch(err) {
+          alert("Invalid JSON file");
+          console.error(err);
+        }
+      };
+      reader.readAsText(file);
+    });
+    function showScreen(id) {
+      document.querySelectorAll(".screen").forEach(s=>s.style.display="none");
+      document.getElementById(id).style.display="flex";
+    }
+
+    function renderCard(data) {
+      const card = `
+        <div class="card" style="position:relative;">
+          <div class="row"><span class="label">Flight #:</span> ${data.FlightNumber||""}</div>
+          <div class="row"><span class="label">Ship #:</span> ${data.ShipNumber||""}</div>
+          <div class="row"><span class="label">Departure:</span> ${data.DepartureAirport||""}</div>
+          <div class="row"><span class="label">Arrival:</span> ${data.ArrivalAirport||""}</div>
+          <div class="row"><span class="label">Route:</span> ${data.Route||""}</div>
+          <div class="row"><span class="label">Block Fuel:</span> ${data.BlockFuel||""}</div>
+          <div class="row"><span class="label">Min TO Fuel:</span> ${data.MinTOFuel||""}</div>
+          <div class="row"><span class="label">Planned Landing Fuel:</span> ${data.PlannedLandingFuel||""}</div>
+          <div class="row"><span class="label">Min Landing Fuel:</span> ${data.MinLandingFuel||""}</div>
+          <div class="row"><span class="label">ETE:</span> ${data.ETE||""}</div>
+          <div class="row"><span class="label">Departure Time:</span> ${data.DepartureTime||""}</div>
+          <div class="row"><span class="label">ETA:</span> ${data.ETA||""} (${data.ETA_Zulu||""} / ${data.ETA_Local||""})</div>
+          <div class="editable">
+            <p>Updated ETA: <input type="number" inputmode="numeric" id="updatedETA" class="required" placeholder="----"></p>
+            <p>Gate: <input type="text" id="gateInfo" class="required" placeholder="Enter Gate"></p>
+            <p>WDR Max TO Weight: <input type="number" inputmode="numeric" id="wdrMax" class="required" placeholder="-----"></p>
+          </div>
+          <div class="sob-box">
+            <input type="number" inputmode="numeric" id="sob" maxlength="3" placeholder="---" class="required">
+          </div>
+        </div>`;
+      document.getElementById("cardContainer").innerHTML = card;
+      document.querySelectorAll(".editable input, .sob-box input").forEach(inp => {
+        inp.value = "";
+        localStorage.removeItem(inp.id);
+        inp.classList.add("required");
+        inp.classList.remove("filled");
+        const saved = localStorage.getItem(inp.id);
+        if (saved) inp.value = saved;
+        inp.addEventListener("input", () => {
+          localStorage.setItem(inp.id, inp.value);
+          if (inp.value.trim() !== "") {
+            inp.classList.remove("required");
+            inp.classList.add("filled");
+          } else {
+            inp.classList.add("required");
+            inp.classList.remove("filled");
+          }
+        });
+      });
+    }</html>

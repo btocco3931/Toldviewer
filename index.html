@@ -1,42 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TOLD Viewer</title>
 <style>
-  :root { color-scheme: dark; }
-  body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background:#111; color:#fff; }
+  body { margin:0; background:#111; color:#fff; font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
   .screen { display:none; align-items:center; justify-content:center; min-height:100vh; padding:20px; }
-  #loadScreen { flex-direction:column; gap:12px; }
-  h1 { margin:0 0 8px 0; font-size:1.4rem; opacity:.9; }
-  input[type="file"] { font-size:1rem; }
+  #loadScreen { display:flex; flex-direction:column; gap:12px; }
   #resultsScreen { align-items:flex-start; }
-  .card { position:relative; background:#1b1b1b; border-radius:16px; padding:20px 20px 88px; width:min(720px, 92vw); box-shadow:0 8px 24px rgba(0,0,0,.45); }
-  .card h2 { margin:0 0 10px 0; font-size:1.4rem; }
-  .row { display:flex; justify-content:space-between; gap:12px; padding:6px 0; border-bottom:1px dashed #2b2b2b; }
-  .row:last-of-type { border-bottom:0; }
-  .label { opacity:.75; }
-  .editable p { margin:10px 0; }
-  .editable input, .sob-box input {
-    background:transparent; color:inherit; outline:none; padding:6px 8px; border-radius:10px;
+  .card {
+    position:relative;
+    background:#1b1b1b;
+    border-radius:16px;
+    padding:20px 20px 88px;
+    width:min(900px,95vw);
+    box-shadow:0 8px 24px rgba(0,0,0,.45);
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-rows: min-content;
+    gap:12px;
   }
-  /* Empty = red, Filled = white */
-  input.required { border:2px solid #e33; color:#e33; }
-  input.filled   { border:2px solid #ddd; color:#fff; }
-
-  /* SOB box */
+  .card h2 { margin:0; font-size:1.3rem; text-align:center; grid-column: 2; }
+  .col-left  { grid-column:1; }
+  .col-center{ grid-column:2; text-align:center; }
+  .col-right { grid-column:3; text-align:right; }
+  .row-full  { grid-column: 1 / 4; text-align:center; margin-top:12px; border-top:1px dashed #333; padding-top:8px; }
+  .label { opacity:.75; margin-right:6px; }
+  .editable input.required, .sob-box input.required { border:2px solid #e33; color:#e33; background:transparent; padding:2px 4px; border-radius:6px; }
+  .editable input.filled, .sob-box input.filled { border:2px solid #ddd; color:#fff; background:transparent; padding:2px 4px; border-radius:6px; }
   .sob-box {
     position:absolute; bottom:16px; right:16px;
     border:3px solid #fff; border-radius:12px;
-    width:82px; height:56px; display:flex; align-items:center; justify-content:center;
+    width:82px; height:56px;
+    display:flex; align-items:center; justify-content:center;
     font-weight:700; font-size:1.3rem;
   }
-  .sob-box input { border:none; width:100%; text-align:center; font:inherit; color:inherit; }
-
-  /* Hide number spinners on some browsers if they show up */
-  input[type=number]::-webkit-outer-spin-button,
-  input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .sob-box input { border:none; width:100%; text-align:center; font:inherit; color:inherit; background:transparent; }
 </style>
 </head>
 <body>
@@ -44,8 +44,7 @@
 <!-- Load screen -->
 <div id="loadScreen" class="screen">
   <h1>Load TOLD JSON</h1>
-  <input type="file" id="fileInput" accept=".json" />
-  <div style="opacity:.7;font-size:.95rem">Choose your <code>data.json</code> from Pythonista.</div>
+  <input type="file" id="fileInput" accept=".json">
 </div>
 
 <!-- Results screen -->
@@ -54,101 +53,85 @@
 </div>
 
 <script>
-let jsonData = null;
+(function(){
+  function showScreen(id){
+    document.getElementById("loadScreen").style.display=(id==="loadScreen"?"flex":"none");
+    document.getElementById("resultsScreen").style.display=(id==="resultsScreen"?"flex":"none");
+  }
 
-function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(s => s.style.display = "none");
-  document.getElementById(id).style.display = "flex";
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  showScreen("loadScreen");
-  const picker = document.getElementById("fileInput");
-  picker.addEventListener("change", (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      try {
-        jsonData = JSON.parse(ev.target.result);
-      } catch (err) {
-        alert("Invalid JSON file"); console.error(err); return;
-      }
-      // Clear autosaved editable fields for a NEW load
-      ["updatedETA","gateInfo","wdrMax","sob"].forEach(k => localStorage.removeItem(k));
-      renderCard(jsonData);
-      showScreen("resultsScreen");
-    };
-    reader.readAsText(file);
-  });
-});
-
-function renderCard(data) {
-  // Build the TOLD card
-  const html = `
-    <div class="card">
-      <h2>${data.FlightNumber || ""} <span style="opacity:.6">(${data.ShipNumber || ""})</span></h2>
-
-      <div class="row"><span class="label">City Pair</span><span>${data.DepartureAirport || ""} – ${data.ArrivalAirport || ""}</span></div>
-      <div class="row"><span class="label">Route</span><span>${data.Route || ""}</span></div>
-
-      <div class="row"><span class="label">ETE</span><span>${data.ETE || ""}</span></div>
-      <div class="row"><span class="label">Departure</span><span>${data.DepartureTime || ""}</span></div>
-      <div class="row"><span class="label">ETA</span><span>${(data.ETA || "")} ${data.ETA_Zulu ? `(${data.ETA_Zulu} / ${data.ETA_Local || ""})` : ""}</span></div>
-
-      <div class="row"><span class="label">Block Fuel</span><span>${data.BlockFuel || ""}</span></div>
-      <div class="row"><span class="label">Min TO Fuel</span><span>${data.MinTOFuel || ""}</span></div>
-      <div class="row"><span class="label">Planned Landing Fuel</span><span>${data.PlannedLandingFuel || ""}</span></div>
-      <div class="row"><span class="label">Min Landing Fuel</span><span>${data.MinLandingFuel || ""}</span></div>
-
-      <div class="editable">
-        <p>Updated ETA: <input type="text" inputmode="numeric" id="updatedETA" class="required" placeholder="----"></p>
-        <p>Gate: <input type="text" id="gateInfo" class="required" placeholder="Enter Gate"></p>
-        <p>WDR Max TO Weight: <input type="text" inputmode="numeric" id="wdrMax" class="required" placeholder="-----"></p>
-      </div>
-
-      <div class="sob-box">
-        <input type="text" inputmode="numeric" id="sob" placeholder="---" maxlength="3" class="required">
-      </div>
-    </div>`;
-
-  const container = document.getElementById("cardContainer");
-  container.innerHTML = html;
-
-  // Wire autosave + styling
-  const inputs = container.querySelectorAll(".editable input, .sob-box input");
-  inputs.forEach(inp => {
-    // Restore any saved value
-    const saved = localStorage.getItem(inp.id);
-    if (saved && saved !== "") {
-      inp.value = saved;
-      inp.classList.add("filled");
-      inp.classList.remove("required");
-    }
-
-    // Enforce numeric-only behaviors where needed
-    inp.addEventListener("input", () => {
-      if (inp.id === "sob") {
-        // Only digits, max 3
-        inp.value = (inp.value || "").replace(/\D/g, "").slice(0, 3);
-      } else if (inp.id === "updatedETA") {
-        // digits + colon allowed (e.g., 1728 or 17:28 — your preference)
-        inp.value = (inp.value || "").replace(/[^0-9:]/g, "");
-      } else if (inp.id === "wdrMax") {
-        // digits only
-        inp.value = (inp.value || "").replace(/\D/g, "");
-      }
-
-      // Save or clear
-      localStorage.setItem(inp.id, inp.value);
-      if ((inp.value || "").trim() !== "") {
-        inp.classList.add("filled"); inp.classList.remove("required");
-      } else {
-        inp.classList.add("required"); inp.classList.remove("filled");
-      }
+  document.addEventListener("DOMContentLoaded",function(){
+    showScreen("loadScreen");
+    document.getElementById("fileInput").addEventListener("change",function(e){
+      var file=e.target.files[0]; if(!file) return;
+      var reader=new FileReader();
+      reader.onload=function(ev){
+        var data;
+        try{ data=JSON.parse(ev.target.result); }
+        catch(err){ alert("Invalid JSON"); console.error(err); return; }
+        ["updatedETA","gateInfo","wdrMax","sob"].forEach(k=>localStorage.removeItem(k));
+        renderCard(data);
+        showScreen("resultsScreen");
+      };
+      reader.readAsText(file);
     });
   });
-}
+
+  function renderCard(d){
+    var etaExtra=d.ETA_Zulu?(" ("+d.ETA_Zulu+" / "+(d.ETA_Local||"")+")"):"";
+    var html="";
+
+    html+="<div class='card'>";
+      // left col
+      html+="<div class='col-left'><div><span class='label'>Date:</span>"+(d.Date||"")+"</div>";
+      html+="<div style='margin-top:16px'><span class='label'>ETE:</span>"+(d.ETE||"")+"</div>";
+      html+="<div style='margin-top:16px'><span class='label'>STAR/SID:</span>"+(d.Star||d.Sid||"")+"</div>";
+      html+="<div style='margin-top:16px'>";
+      html+="<div><span class='label'>Block:</span>"+(d.BlockFuel||"")+"</div>";
+      html+="<div><span class='label'>Min TO:</span>"+(d.MinTOFuel||"")+"</div>";
+      html+="<div><span class='label'>Planned:</span>"+(d.PlannedLandingFuel||"")+"</div>";
+      html+="<div><span class='label'>Min Ldg:</span>"+(d.MinLandingFuel||"")+"</div>";
+      html+="</div></div>";
+
+      // center col
+      html+="<div class='col-center'>";
+      html+="<div><span class='label'>Ship #:</span>"+(d.ShipNumber||"")+"</div>";
+      html+="<div style='margin-top:8px'>"+(d.DepartureAirport||"")+" – "+(d.ArrivalAirport||"")+"</div>";
+      html+="<div style='margin-top:8px'><span class='label'>Flight #:</span>"+(d.FlightNumber||"")+"</div>";
+      html+="<div class='editable' style='margin-top:8px'><span class='label'>Gate:</span><input type='text' id='gateInfo' class='required' placeholder='Enter Gate'></div>";
+      html+="</div>";
+
+      // right col
+      html+="<div class='col-right'>";
+      html+="<div><span class='label'>Departure:</span>"+(d.DepartureTime||"")+"</div>";
+      html+="<div style='margin-top:16px'><span class='label'>ETA:</span>"+(d.ETA||"")+etaExtra+"</div>";
+      html+="<div class='editable' style='margin-top:8px'><span class='label'>Updated ETA:</span><input type='text' inputmode='numeric' id='updatedETA' class='required' placeholder='----'></div>";
+      html+="<div class='editable' style='margin-top:40px'><span class='label'>WDR Max TO Wt:</span><input type='text' inputmode='numeric' id='wdrMax' class='required' placeholder='-----'></div>";
+      html+="</div>";
+
+      // bottom full width
+      html+="<div class='row-full'><span class='label'>Route:</span>"+(d.Route||"")+"</div>";
+
+      // sob box
+      html+="<div class='sob-box'><input type='text' inputmode='numeric' id='sob' maxlength='3' placeholder='---' class='required'></div>";
+
+    html+="</div>"; // card
+
+    document.getElementById("cardContainer").innerHTML=html;
+
+    document.querySelectorAll(".editable input, .sob-box input").forEach(function(inp){
+      var saved=localStorage.getItem(inp.id);
+      if(saved){ inp.value=saved; inp.classList.add("filled"); inp.classList.remove("required"); }
+      inp.addEventListener("input",function(){
+        if(inp.id==="sob"){ inp.value=(inp.value||"").replace(/[^0-9]/g,"").slice(0,3); }
+        else if(inp.id==="updatedETA"){ inp.value=(inp.value||"").replace(/[^0-9:]/g,""); }
+        else if(inp.id==="wdrMax"){ inp.value=(inp.value||"").replace(/[^0-9]/g,""); }
+        localStorage.setItem(inp.id,inp.value);
+        if((inp.value||"").trim()!==""){ inp.classList.add("filled"); inp.classList.remove("required"); }
+        else { inp.classList.add("required"); inp.classList.remove("filled"); }
+      });
+    });
+  }
+})();
 </script>
 </body>
 </html>
