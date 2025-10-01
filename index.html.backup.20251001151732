@@ -37,6 +37,36 @@
     font-weight:700; font-size:1.3rem;
   }
   .sob-box input { border:none; width:100%; text-align:center; font:inherit; color:inherit; background:transparent; }
+  /* Departure countdown badge */
+  .countdown{ margin-left:8px; padding:2px 8px; border-radius:10px; font-variant-numeric: tabular-nums; border:1px solid currentColor; }
+  .countdown.negative{ color:#00d26a; }
+  .countdown.positive{ color:#ff3b30; }
+  /* === Departure countdown badge === */
+  .countdown{ margin-left:8px; padding:2px 8px; border-radius:12px; font-variant-numeric: tabular-nums; border:1px solid currentColor; }
+  .countdown.negative{ color:#00d26a; } /* before departure */
+  .countdown.positive{ color:#ff3b30; } /* after departure */
+  /* === Departure countdown badge === */
+  .countdown{ margin-left:8px; padding:2px 8px; border-radius:12px; font-variant-numeric: tabular-nums; border:1px solid currentColor; }
+  .countdown.negative{ color:#00d26a; } /* before departure */
+  .countdown.positive{ color:#ff3b30; } /* after departure */
+  /* === Live departure countdown (fixed) === */
+  .countdown.negative{color:#00d26a}
+  .countdown.positive{color:#ff3b30}
+  /* Countdown badge */
+  .countdown{ margin-left:8px; padding:2px 6px; border-radius:8px; font-variant-numeric: tabular-nums; border:1px solid currentColor;}
+  .countdown.negative{ color:#00d26a; }
+  .countdown.positive{ color:#ff3b30; }
+  /* Departure countdown */
+  .countdown{ margin-left:8px; padding:2px 6px; border-radius:8px; font-variant-numeric: tabular-nums; border:1px solid currentColor;}
+  .countdown.negative{ color:#00d26a; }
+  .countdown.positive{ color:#ff3b30; }
+  /* Shrink font for date and ship number */
+  #Date, #ShipNumber { font-size: 0.8em; opacity: 0.85; }
+  /* Header info styling */
+  .header-info { display:flex; justify-content:space-between; padding:4px 8px; font-size:0.75em; color:#ccc; border-bottom:1px solid #333; }
+  .card-header { display:flex; justify-content:space-between; font-size:0.75em; color:#aaa; margin-bottom:8px; border-bottom:1px solid #333; padding-bottom:4px; }
+  .card .col-left .label:contains("Date"), .card .col-center .label:contains("Ship #") { font-size:0.75em; }
+  #DateVal, #ShipVal { font-size:0.75em; }
 </style>
 </head>
 <body>
@@ -82,7 +112,6 @@
 
     html+="<div class='card'>";
       // left col
-      html+="<div class='col-left'><div><span class='label'>Date:</span>"+(d.Date||"")+"</div>";
       html+="<div style='margin-top:16px'><span class='label'>ETE:</span>"+(d.ETE||"")+"</div>";
       html+="<div style='margin-top:16px'><span class='label'>STAR/SID:</span>"+(d.Star||d.Sid||"")+"</div>";
       html+="<div style='margin-top:16px'>";
@@ -94,7 +123,6 @@
 
       // center col
       html+="<div class='col-center'>";
-      html+="<div><span class='label'>Ship #:</span>"+(d.ShipNumber||"")+"</div>";
       html+="<div style='margin-top:8px'>"+(d.DepartureAirport||"")+" – "+(d.ArrivalAirport||"")+"</div>";
       html+="<div style='margin-top:8px'><span class='label'>Flight #:</span>"+(d.FlightNumber||"")+"</div>";
       html+="<div class='editable' style='margin-top:8px'><span class='label'>Gate:</span><input type='text' id='gateInfo' class='required' placeholder='Enter Gate'></div>";
@@ -133,5 +161,6 @@
   }
 })();
 </script>
+  <!-- Countdown placeholder: shows even if JS fails -->
 </body>
 </html>
