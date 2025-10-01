@@ -20,17 +20,6 @@
   function parseDep(card){
     if (!card || !card.Date || !card.DepartureTime) return null;
 
-    // Prefer ####L, fallback to ####Z
-    let match = String(card.DepartureTime).match(/(\d{4})L/i);
-    if (!match){
-      match = String(card.DepartureTime).match(/(\d{4})Z/i);
-    }
-    if (!match) return null;
-
-    const time = match[1];
-    const hh = parseInt(time.slice(0,2),10);
-    const mm = parseInt(time.slice(2),10);
-
     const mdy = card.Date.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
     if (!mdy) return null;
 
@@ -39,7 +28,25 @@
     let y = parseInt(mdy[3],10);
     if (y < 100) y = 2000 + y;
 
-    return new Date(y, m-1, d, hh, mm, 0, 0); // device-local scheduled departure
+    const depStr = String(card.DepartureTime);
+
+    // Try Zulu first
+    const z = depStr.match(/(\d{4})Z/i);
+    if (z){
+      const hh = parseInt(z[1].slice(0,2),10);
+      const mm = parseInt(z[1].slice(2),10);
+      return new Date(Date.UTC(y, m-1, d, hh, mm, 0, 0));
+    }
+
+    // Fallback: Local
+    const l = depStr.match(/(\d{4})L/i);
+    if (l){
+      const hh = parseInt(l[1].slice(0,2),10);
+      const mm = parseInt(l[1].slice(2),10);
+      return new Date(y, m-1, d, hh, mm, 0, 0);
+    }
+
+    return null;
   }
 
   function update(){
@@ -54,7 +61,7 @@
       return;
     }
 
-    const now = new Date();           // ⬅️ current device time
+    const now = new Date();
     const diff = now.getTime() - dep.getTime();
 
     el.textContent = (diff < 0 ? '-' : '+') + fmt(diff);
