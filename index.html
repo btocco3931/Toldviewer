@@ -64,6 +64,7 @@
   #Date, #ShipNumber { font-size: 0.8em; opacity: 0.85; }
   /* Header info styling */
   .header-info { display:flex; justify-content:space-between; padding:4px 8px; font-size:0.75em; color:#ccc; border-bottom:1px solid #333; }
+  .card-header { display:flex; justify-content:space-between; font-size:0.75em; color:#aaa; margin-bottom:8px; border-bottom:1px solid #333; padding-bottom:4px; }
 </style>
 </head>
 <body>
@@ -109,7 +110,6 @@
 
     html+="<div class='card'>";
       // left col
-      html+="<div class='col-left'><div><span class='label'>Date:</span>"+(d.Date||"")+"</div>";
       html+="<div style='margin-top:16px'><span class='label'>ETE:</span>"+(d.ETE||"")+"</div>";
       html+="<div style='margin-top:16px'><span class='label'>STAR/SID:</span>"+(d.Star||d.Sid||"")+"</div>";
       html+="<div style='margin-top:16px'>";
@@ -121,7 +121,6 @@
 
       // center col
       html+="<div class='col-center'>";
-      html+="<div><span class='label'>Ship #:</span>"+(d.ShipNumber||"")+"</div>";
       html+="<div style='margin-top:8px'>"+(d.DepartureAirport||"")+" – "+(d.ArrivalAirport||"")+"</div>";
       html+="<div style='margin-top:8px'><span class='label'>Flight #:</span>"+(d.FlightNumber||"")+"</div>";
       html+="<div class='editable' style='margin-top:8px'><span class='label'>Gate:</span><input type='text' id='gateInfo' class='required' placeholder='Enter Gate'></div>";
